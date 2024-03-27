@@ -2,7 +2,7 @@
 
 ## Overview
 
-hurl is a command-line tool inspired by HTTPie, Postman and curl, designed for developers who prefer to manage and execute HTTP requests from the terminal. Unlike traditional tools that require manual input for each request, hurl allows users to store their HTTP requests in files and execute them directly from the command line. This approach enables easy version control, sharing among team members, and integration into scripts or CI/CD pipelines.
+Hurl is a command-line tool inspired by HTTPie, Postman, and curl, designed for developers who prefer to manage and execute HTTP requests from the terminal. Born out of a love for Neovim and the streamlined efficiency of terminal-based workflows, Hurl is crafted for those who thrive in the command-line environment. Unlike traditional tools that require manual input for each request, Hurl allows users to store their HTTP requests in files and execute them directly from the command line. Whether you're editing code, managing version control, or interacting with web services, Hurl is intended to keep you in the zone, without ever leaving the comforting embrace of the terminal.
 
 ## Features
 
