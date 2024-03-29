@@ -1,18 +1,23 @@
-# This file is for zig-specific build artifacts.
-# If you have OS-specific or editor-specific files to ignore,
-# such as *.swp or .DS_Store, put those in your global
-# ~/.gitignore and put this in your ~/.gitconfig:
+# If you prefer the allow list template instead of the deny list, see community template:
+# https://github.com/github/gitignore/blob/main/community/Golang/Go.AllowList.gitignore
 #
-# [core]
-#     excludesfile = ~/.gitignore
-#
-# Cheers!
-# -andrewrk
+# Binaries for programs and plugins
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
 
-zig-cache/
-zig-out/
-/release/
-/debug/
-/build/
-/build-*/
-/docgen_tmp/
+# Test binary, built with `go test -c`
+*.test
+
+# Output of the go coverage tool, specifically when used with LiteIDE
+*.out
+
+# Dependency directories (remove the comment below to include it)
+# vendor/
+
+# Go workspace file
+go.work
+
+hurl
