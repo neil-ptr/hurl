@@ -17,7 +17,7 @@ const (
 	VALUE    = 1
 )
 
-func ParseHurlFile(filepath string) (HurlRequest, error) {
+func ParseHurlFile(filepath string, options Options) (HurlRequest, error) {
 	f, err := os.OpenFile(filepath, os.O_RDONLY, os.ModePerm)
 	if err != nil {
 		panic(err)
@@ -40,9 +40,7 @@ func ParseHurlFile(filepath string) (HurlRequest, error) {
 	}
 
 	parsedUrl, err := url.Parse(requestLineComponents[URL])
-
 	h.URL = *parsedUrl
-
 	h.Method = requestLineComponents[METHOD]
 
 	// headers
@@ -63,8 +61,10 @@ func ParseHurlFile(filepath string) (HurlRequest, error) {
 		h.Headers["Host"] = h.URL.Hostname()
 	}
 
+	h.Headers["User-Agent"] = "hurl/0.1.0"
+
 	// body
-	for sc.Scan() && sc.Text() != "" {
+	for sc.Scan() && len(sc.Bytes()) > 0 {
 		h.Body = append(h.Body, sc.Bytes()...)
 	}
 
