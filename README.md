@@ -11,10 +11,10 @@ Hurl is a command-line tool inspired by HTTPie, Postman, and curl, designed for 
 - **Save and Reuse Requests**: Store your HTTP requests in simple text files for easy reuse and version control.
 - **Support for Multiple HTTP Methods**: GET, POST, PUT, DELETE, PATCH, and more.
 - **Headers & Payload Handling**: Easily add headers and payloads to your requests.
-- **Environment Variables**: Use environment variables in your request files for different deployment stages (e.g., development, staging, production).
+- **Environment Variables**: (TODO) Use environment variables in your request files for different deployment stages (e.g., development, staging, production).
+- **Request Chaining**: (TODO) Chain requests together and use the response from one as input for another.
 - **Response Highlighting**: Color-coded response output for easy reading and debugging.
-- **Request Chaining**: Chain requests together and use the response from one as input for another.
-- **File Uploads**: Support for multipart file uploads.
+- **File Uploads**: (TODO) Support for multipart file uploads. 
 - **History & Repeat**: Keep a history of your requests and repeat them with a single command.
 
 ## Installation
