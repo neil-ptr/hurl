@@ -1,4 +1,4 @@
-package parser
+package src
 
 import (
 	"bufio"
@@ -9,8 +9,6 @@ import (
 	"strings"
 )
 
-var CRLF = []byte{13, 10} // [c]arriage [r]eturn, [l]ine [f]eed
-
 const (
 	METHOD   = 0
 	URL      = 1
@@ -18,38 +16,6 @@ const (
 	NAME     = 0
 	VALUE    = 1
 )
-
-type HurlRequest struct {
-	Method  string
-	URL     *url.URL
-	Headers map[string]string
-	Body    []byte
-	// FilePaths []string
-}
-
-func (h HurlRequest) GetRawRequest() []byte {
-	rawRequest := []byte{}
-
-	requestLine := fmt.Sprintf("%s %s HTTP/1.1\r\n", h.Method, h.Path)
-	rawRequest = append(rawRequest, []byte(requestLine)...)
-
-	for key := range h.Headers {
-		headerVal, _ := h.Headers[key]
-
-		header := fmt.Sprintf("%s: %s\r\n", key, headerVal)
-		rawRequest = append(rawRequest, []byte(header)...)
-	}
-
-	rawRequest = append(rawRequest, CRLF...)
-
-	if len(h.Body) == 0 {
-		return rawRequest
-	}
-
-	// TODO: process body
-
-	return rawRequest
-}
 
 func ParseHurlFile(filepath string) (HurlRequest, error) {
 	f, err := os.OpenFile(filepath, os.O_RDONLY, os.ModePerm)
@@ -74,7 +40,9 @@ func ParseHurlFile(filepath string) (HurlRequest, error) {
 	}
 
 	parsedUrl, err := url.Parse(requestLineComponents[URL])
-	h.URL = parsedUrl
+
+	h.URL = *parsedUrl
+
 	h.Method = requestLineComponents[METHOD]
 
 	// headers
@@ -86,16 +54,19 @@ func ParseHurlFile(filepath string) (HurlRequest, error) {
 
 		headerMap[headerName] = headerVal
 	}
+
 	h.Headers = headerMap
 
-	host, ok := headerMap["Host"]
-	if !ok {
-		panic("`HOST` header is missing")
+	hostHeaderVal, exists := h.Headers["Host"]
+	if exists && h.URL.Hostname() != hostHeaderVal {
+		fmt.Println("Host header value does not match host in URL, using host in URL")
+		h.Headers["Host"] = h.URL.Hostname()
 	}
 
-	h.Host = host
-
-	// TODO: body
+	// body
+	for sc.Scan() && sc.Text() != "" {
+		h.Body = append(h.Body, sc.Bytes()...)
+	}
 
 	return h, nil
 }
