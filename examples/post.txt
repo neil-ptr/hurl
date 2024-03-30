@@ -1,1 +1,1 @@
-POST https://jsonplaceholder.typicode.com/todos/1
+POST https://jsonplaceholder.typicode.com/posts
