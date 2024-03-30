@@ -1,4 +1,4 @@
-# hurl
+# hurl 🤮
 
 ## Currently under construction 🚧
 
