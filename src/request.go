@@ -5,6 +5,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"time"
 )
 
 type HurlRequest struct {
@@ -32,4 +33,21 @@ func (h HurlRequest) HttpRequest() (*http.Request, error) {
 	}
 
 	return req, nil
+}
+
+func (h HurlRequest) Do() (HurlResponse, error) {
+	req, err := h.HttpRequest()
+	if err != nil {
+		return HurlResponse{}, err
+	}
+
+	start := time.Now()
+	res, err := http.DefaultClient.Do(req)
+	duration := time.Since(start)
+
+	if err != nil {
+		return HurlResponse{}, err
+	}
+
+	return HurlResponse{res, duration}, nil
 }

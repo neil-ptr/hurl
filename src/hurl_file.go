@@ -4,8 +4,8 @@ import (
 	"bufio"
 	"errors"
 	"fmt"
+	"io"
 	"net/url"
-	"os"
 	"strings"
 )
 
@@ -17,14 +17,7 @@ const (
 	VALUE    = 1
 )
 
-func ParseHurlFile(filepath string, options Options) (HurlRequest, error) {
-	f, err := os.OpenFile(filepath, os.O_RDONLY, os.ModePerm)
-	if err != nil {
-		panic(err)
-	}
-
-	defer f.Close()
-
+func ParseHurlFile(f io.Reader, options Options) (HurlRequest, error) {
 	h := HurlRequest{}
 	sc := bufio.NewScanner(f)
 
@@ -40,6 +33,10 @@ func ParseHurlFile(filepath string, options Options) (HurlRequest, error) {
 	}
 
 	parsedUrl, err := url.Parse(requestLineComponents[URL])
+	if err != nil {
+		return HurlRequest{}, err
+	}
+
 	h.URL = *parsedUrl
 	h.Method = requestLineComponents[METHOD]
 

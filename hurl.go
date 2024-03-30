@@ -3,7 +3,6 @@ package main
 import (
 	"errors"
 	"fmt"
-	"net/http"
 	"os"
 
 	"github.com/neil-and-void/hurl/src"
@@ -25,19 +24,29 @@ func main() {
 		os.Exit(1)
 	}
 
-	hurlRequest, err := src.ParseHurlFile(hurlFilePath, options)
+	f, err := os.OpenFile(hurlFilePath, os.O_RDONLY, os.ModePerm)
+	if err != nil {
+		panic(err)
+	}
+
+	hurlRequest, err := src.ParseHurlFile(f, options)
 	if err != nil {
 		fmt.Println("hurl: ", err)
 		os.Exit(1)
 	}
+	f.Close()
 
-	req, err := hurlRequest.HttpRequest()
-	if err != nil {
-		fmt.Println("hurl: ", err)
-		os.Exit(1)
+	if *options.Verbose == true {
+		formattedRequest, err := src.FormatRequest(hurlRequest)
+		if err != nil {
+			fmt.Println("hurl: ", err)
+			os.Exit(1)
+		}
+
+		fmt.Printf("%s", formattedRequest)
 	}
 
-	res, err := http.DefaultClient.Do(req)
+	res, err := hurlRequest.Do()
 	if err != nil {
 		fmt.Println("hurl: ", err)
 		os.Exit(1)
@@ -47,16 +56,6 @@ func main() {
 	if err != nil {
 		fmt.Println("hurl: ", err)
 		os.Exit(1)
-	}
-
-	if *options.Verbose == true {
-		formattedRequest, err := src.FormatRequest(req)
-		if err != nil {
-			fmt.Println("hurl: ", err)
-			os.Exit(1)
-		}
-
-		fmt.Printf("%s", formattedRequest)
 	}
 
 	fmt.Printf("%s\n", formattedReponse)
