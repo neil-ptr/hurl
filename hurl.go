@@ -1,7 +1,8 @@
 package main
 
 import (
-	"log"
+	"errors"
+	"fmt"
 	"net/http"
 	"os"
 
@@ -9,22 +10,54 @@ import (
 )
 
 func main() {
-	args := os.Args[1:]
+	options := src.InitOptions()
 
-	hurlRequest, err := src.ParseHurlFile(args[0])
+	if len(os.Args) < 2 {
+		fmt.Println("hurl: no hurl file provided")
+		os.Exit(1)
+	}
+
+	hurlFilePath := os.Args[len(os.Args)-1]
+
+	_, err := os.Stat(hurlFilePath)
+	if errors.Is(err, os.ErrNotExist) {
+		fmt.Printf("hurl: file does not exist: %s\n", hurlFilePath)
+		os.Exit(1)
+	}
+
+	hurlRequest, err := src.ParseHurlFile(hurlFilePath, options)
 	if err != nil {
-		log.Fatal("hurl: ", err)
+		fmt.Println("hurl: ", err)
+		os.Exit(1)
 	}
 
 	req, err := hurlRequest.HttpRequest()
 	if err != nil {
-		log.Fatal("hurl: ", err)
+		fmt.Println("hurl: ", err)
+		os.Exit(1)
 	}
 
 	res, err := http.DefaultClient.Do(req)
 	if err != nil {
-		log.Fatal("hurl: ", err)
+		fmt.Println("hurl: ", err)
+		os.Exit(1)
 	}
 
-	src.WriteResponse(res)
+	formattedReponse, err := src.FormatResponse(res)
+	if err != nil {
+		fmt.Println("hurl: ", err)
+		os.Exit(1)
+	}
+
+	if *options.Verbose == true {
+		formattedRequest, err := src.FormatRequest(req)
+		if err != nil {
+			fmt.Println("hurl: ", err)
+			os.Exit(1)
+		}
+
+		fmt.Printf("%s", formattedRequest)
+	}
+
+	fmt.Printf("%s\n", formattedReponse)
 }
