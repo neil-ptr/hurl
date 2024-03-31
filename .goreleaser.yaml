@@ -50,7 +50,7 @@ brews:
     repository:
       owner: neil-and-void
       name: hurl
-    homepage: "https://github.com/neil-and-void/hurl"
+    homepage: "https://github.com/neil-and-void/homebrew-hurl"
     description: "A powerful tool for sending HTTP requests"
     url_template: "https://github.com/neil-and-void/hurl/releases/download/{{ .Tag }}/{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}.tar.gz"
     caveats: "Thanks for installing hurl!"
