@@ -9,10 +9,9 @@ Hurl is a command-line tool inspired by HTTPie, Postman, and curl, designed for 
 ## Features
 
 - **Save and Reuse Requests**: Store your HTTP requests in simple text files for easy reuse and version control.
-- **Support for Multiple HTTP Methods**: GET, POST, PUT, DELETE, PATCH, and more.
+- **Support for Multiple HTTP Methods**: GET, POST, PUT, DELETE, and PATCH.
 - **Headers & Payload Handling**: Easily add headers and payloads to your requests.
-- **Environment Variables**: (TODO) Use environment variables in your request files for different deployment stages (e.g., development, staging, production).
-- **Request Chaining**: (TODO) Chain requests together and use the response from one as input for another.
+- **Environment Variables**: Use environment variables in your request files for different deployment stages (e.g., development, staging, production).
 - **Response Highlighting**: Color-coded response output for easy reading and debugging.
 - **File Uploads**: (TODO) Support for multipart file uploads. 
 - **History & Repeat**: Keep a history of your requests and repeat them with a single command.
@@ -50,13 +49,21 @@ TODO
 
 4. **Viewing Response**: The response will be printed directly to your terminal, with syntax highlighting for JSON responses.
 
+```json
+{
+  "userId": 1,
+  "id": 1,
+  "title": "delectus aut autem",
+  "completed": false
+}
+```
+
+you can also output responses to files using `-o` flag
+```bash
+hurl -o=./response.json examples/post.txt
+```
 ## Configuration
-
-You can configure hurl globally by creating a `.hurlrc` file in your home directory. Available configurations include default headers, response timeout, and proxy settings.
-
-## Contributing
-
-TODO
+You can configure hurl by creating a `hurl.json` file in your current working directory. Available configurations include setting `.env` file path, default headers (TODO), response timeout (TODO).
 
 ## License
 
