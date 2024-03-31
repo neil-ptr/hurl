@@ -47,7 +47,7 @@ changelog:
 
 brews:
   - name: hurl
-    tap:
+    repository:
       owner: neil-and-void
       name: hurl
     homepage: "https://github.com/neil-and-void/hurl"
