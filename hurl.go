@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"net/http"
 	"os"
 
 	"github.com/neil-and-void/hurl/src"
@@ -47,5 +48,12 @@ func main() {
 		}
 	}
 
-	// res, err := http.DefaultClient.Do(req)
+	res, err := http.DefaultClient.Do(req)
+
+	err = hurlOutput.OutputResponse(*res)
+	if err != nil {
+		fmt.Printf("hurl: %s", err.Error())
+		os.Exit(1)
+	}
+
 }

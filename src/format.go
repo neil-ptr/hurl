@@ -11,70 +11,6 @@ import (
 	"github.com/fatih/color"
 )
 
-func FormatRequest(hurlRequest HurlRequest) ([]byte, error) {
-	formattedRequest := []byte{}
-
-	method := formatMethod(hurlRequest.Method)
-	path := formatPath(hurlRequest.URL.Path)
-	protocol := formatProtocol("HTTP/1.1")
-
-	requestLine := fmt.Sprintf("> %s%s%s\n", method, path, protocol)
-
-	formattedRequest = append(formattedRequest, []byte(requestLine)...)
-
-	for name, value := range hurlRequest.Headers {
-		coloredHeaderName := color.New(color.FgYellow).SprintFunc()
-		formattedHeader := []byte(fmt.Sprintf("> %s: %s\n", coloredHeaderName(name), value))
-
-		formattedRequest = append(formattedRequest, formattedHeader...)
-	}
-
-	formattedRequest = append(formattedRequest, []byte("> \n")...)
-
-	return formattedRequest, nil
-}
-
-func FormatResponse(hurlResponse HurlResponse) ([]byte, error) {
-	formattedResponse := []byte{}
-
-	protocol := formatProtocol(hurlResponse.Response.Proto)
-	status := formatStatusCode(hurlResponse.Response.StatusCode, hurlResponse.Response.Status)
-	requestLine := fmt.Sprintf("< %s%s\n", protocol, status)
-
-	formattedResponse = append(formattedResponse, []byte(requestLine)...)
-
-	coloredHeaderName := color.New(color.FgYellow).SprintFunc()
-	for name, value := range hurlResponse.Response.Header {
-		formattedResponse = append(formattedResponse, []byte(fmt.Sprintf("< %s: %s\n", coloredHeaderName(name), strings.Join(value, "")))...)
-	}
-
-	// separate headers from body
-	formattedResponse = append(formattedResponse, []byte("< \n")...)
-
-	body, err := io.ReadAll(hurlResponse.Response.Body)
-	if err != nil {
-		return []byte{}, err
-	}
-
-	formatter := "" // raw text
-	contentType := hurlResponse.Response.Header.Get("Content-Type")
-	if strings.Contains(contentType, "application/json") {
-		formatter = "json"
-	} else if strings.Contains(contentType, "text/html") {
-		formatter = "html"
-	}
-
-	if len(body) == 0 {
-		return []byte{}, nil
-	}
-
-	buffer := bytes.Buffer{}
-	err = quick.Highlight(&buffer, string(body), formatter, "terminal", "")
-	formattedResponse = append(formattedResponse, buffer.Bytes()...)
-
-	return formattedResponse, nil
-}
-
 func formatMethod(method string) string {
 	formatted := fmt.Sprintf(" %s ", method)
 
@@ -105,16 +41,6 @@ func formatPath(path string) string {
 	return fmt.Sprintf("%s", coloredPath(formatted))
 }
 
-func FormatStatusline(req http.Request) []byte {
-	method := formatMethod(req.Method)
-	path := formatPath(req.URL.Path)
-	protocol := formatProtocol(req.Proto)
-
-	formattedStatusline := fmt.Sprintf("%s%s%s\n", method, path, protocol)
-
-	return []byte(formattedStatusline)
-}
-
 func formatProtocol(protocol string) string {
 	coloredProtocol := color.New(color.BgWhite, color.FgBlack).SprintFunc()
 	formatted := fmt.Sprintf(" %s ", protocol)
@@ -135,10 +61,10 @@ func formatStatusCode(statusCode int, status string) string {
 	return fmt.Sprintf("%s", coloredStatus(formatted))
 }
 
-func FormatHeaders(req http.Request) []byte {
+func FormatHeaders(headers http.Header) []byte {
 	buffer := bytes.Buffer{}
 
-	for name, value := range req.Header {
+	for name, value := range headers {
 		yellow := color.New(color.FgYellow).SprintFunc()
 		headerVal := strings.Join(value, "")
 
@@ -185,4 +111,62 @@ func FormatBody(body []byte, contentType string) ([]byte, error) {
 	}
 
 	return buffer.Bytes(), nil
+}
+
+func FormatRequestLine(req http.Request) []byte {
+	method := formatMethod(req.Method)
+	path := formatPath(req.URL.Path)
+	protocol := formatProtocol(req.Proto)
+
+	formattedStatusline := fmt.Sprintf("> %s%s%s\n", method, path, protocol)
+
+	return []byte(formattedStatusline)
+}
+
+func FormatStatusLine(res http.Response) string {
+	protocol := formatProtocol(res.Proto)
+	status := formatStatusCode(res.StatusCode, res.Status)
+
+	return fmt.Sprintf("< %s%s\n", protocol, status)
+}
+
+func FormatResponse(hurlResponse HurlResponse) ([]byte, error) {
+	formattedResponse := []byte{}
+
+	protocol := formatProtocol(hurlResponse.Response.Proto)
+	status := formatStatusCode(hurlResponse.Response.StatusCode, hurlResponse.Response.Status)
+	requestLine := fmt.Sprintf("< %s%s\n", protocol, status)
+
+	formattedResponse = append(formattedResponse, []byte(requestLine)...)
+
+	coloredHeaderName := color.New(color.FgYellow).SprintFunc()
+	for name, value := range hurlResponse.Response.Header {
+		formattedResponse = append(formattedResponse, []byte(fmt.Sprintf("< %s: %s\n", coloredHeaderName(name), strings.Join(value, "")))...)
+	}
+
+	// separate headers from body
+	formattedResponse = append(formattedResponse, []byte("< \n")...)
+
+	body, err := io.ReadAll(hurlResponse.Response.Body)
+	if err != nil {
+		return []byte{}, err
+	}
+
+	formatter := "" // raw text
+	contentType := hurlResponse.Response.Header.Get("Content-Type")
+	if strings.Contains(contentType, "application/json") {
+		formatter = "json"
+	} else if strings.Contains(contentType, "text/html") {
+		formatter = "html"
+	}
+
+	if len(body) == 0 {
+		return []byte{}, nil
+	}
+
+	buffer := bytes.Buffer{}
+	err = quick.Highlight(&buffer, string(body), formatter, "terminal", "")
+	formattedResponse = append(formattedResponse, buffer.Bytes()...)
+
+	return formattedResponse, nil
 }

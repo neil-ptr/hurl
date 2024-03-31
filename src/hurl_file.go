@@ -115,7 +115,7 @@ func parseHumanReadableBody(sc *bufio.Scanner) ([]byte, error) {
 		body = append(body, sc.Bytes()...)
 
 		// scanning removes newline I guess, add it back to make sure it looks
-		// the same in the file as it is in the output
+		// the same in the hurl file as it looks in the output for consistency
 		body = append(body, '\n')
 	}
 
