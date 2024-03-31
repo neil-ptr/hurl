@@ -1,4 +1,5 @@
-POST https://echo.free.beeceptor.com/posts
+POST {{BASE_URL}}/posts
 Content-Type: image/png
+Authorization: bearer token_val
 
-@file=path/to/idk
+@file=/Users/neilviloria/personal/hurl/test.png

@@ -11,7 +11,7 @@ type Config struct {
 
 func InitConfig() Config {
 	verbose := flag.Bool("v", false, "verbose output")
-	bodyOutputPath := flag.String("b", "", "path to a file to output the response body")
+	bodyOutputPath := flag.String("o", "", "path to a file to output the response body")
 
 	flag.Parse()
 

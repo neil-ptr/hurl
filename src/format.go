@@ -76,6 +76,11 @@ func FormatHeaders(headers http.Header) []byte {
 	return buffer.Bytes()
 }
 
+func FormatFilePathsTitle() string {
+	title := color.New(color.FgBlack, color.BgWhite).SprintFunc()
+	return fmt.Sprintf("%s\n", title(" body contents outputted to: "))
+}
+
 func FormatFilePaths(filePaths []string) []byte {
 	buffer := bytes.Buffer{}
 

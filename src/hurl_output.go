@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"os"
 )
 
 type HurlOutput struct {
@@ -52,16 +53,28 @@ func (h HurlOutput) OutputResponse(res http.Response) error {
 	// separate body with newline
 	buffer.Write([]byte("\n"))
 
-	if h.Config.BodyOutputPath == nil {
-
-		// output to file at path
-		return nil
-	}
-
 	contentType := res.Header.Get("Content-Type")
 	bodyBytes, err := io.ReadAll(res.Body)
 	if err != nil {
 		return err
+	}
+
+	bodyOutputPath := h.Config.BodyOutputPath
+	if bodyOutputPath != nil && len(*bodyOutputPath) > 0 {
+		err := os.WriteFile(*bodyOutputPath, bodyBytes, 0644)
+		if err != nil {
+			return err
+		}
+
+		title := FormatFilePathsTitle()
+		buffer.Write([]byte(title))
+
+		filePaths := FormatFilePaths([]string{*bodyOutputPath})
+		buffer.Write(filePaths)
+
+		fmt.Printf("%s\n", buffer.String())
+
+		return nil
 	}
 
 	body, err := FormatBody(bodyBytes, contentType)
