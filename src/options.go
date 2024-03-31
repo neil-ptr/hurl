@@ -4,18 +4,18 @@ import (
 	"flag"
 )
 
-type Options struct {
+type Config struct {
 	Verbose        *bool
 	BodyOutputPath *string
 }
 
-func InitOptions() Options {
+func InitConfig() Config {
 	verbose := flag.Bool("v", false, "verbose output")
 	bodyOutputPath := flag.String("b", "", "path to a file to output the response body")
 
 	flag.Parse()
 
-	return Options{
+	return Config{
 		Verbose:        verbose,
 		BodyOutputPath: bodyOutputPath,
 	}

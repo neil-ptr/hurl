@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"io"
+	"net/http"
 	"strings"
 
 	"github.com/alecthomas/chroma/v2/quick"
@@ -104,6 +105,22 @@ func formatPath(path string) string {
 	return fmt.Sprintf("%s", coloredPath(formatted))
 }
 
+func FormatStatusline(req http.Request) []byte {
+	method := formatMethod(req.Method)
+	path := formatPath(req.URL.Path)
+	protocol := formatProtocol(req.Proto)
+
+	formattedStatusline := fmt.Sprintf("%s%s%s\n", method, path, protocol)
+
+	return []byte(formattedStatusline)
+}
+
+func formatProtocol(protocol string) string {
+	coloredProtocol := color.New(color.BgWhite, color.FgBlack).SprintFunc()
+	formatted := fmt.Sprintf(" %s ", protocol)
+	return fmt.Sprintf("%s", coloredProtocol(formatted))
+}
+
 func formatStatusCode(statusCode int, status string) string {
 	coloredStatus := color.New(color.BgWhite, color.FgBlack).SprintFunc()
 	if statusCode >= 200 && statusCode < 300 {
@@ -118,8 +135,54 @@ func formatStatusCode(statusCode int, status string) string {
 	return fmt.Sprintf("%s", coloredStatus(formatted))
 }
 
-func formatProtocol(protocol string) string {
-	coloredProtocol := color.New(color.BgWhite, color.FgBlack).SprintFunc()
-	formatted := fmt.Sprintf(" %s ", protocol)
-	return fmt.Sprintf("%s", coloredProtocol(formatted))
+func FormatHeaders(req http.Request) []byte {
+	buffer := bytes.Buffer{}
+
+	for name, value := range req.Header {
+		yellow := color.New(color.FgYellow).SprintFunc()
+		headerVal := strings.Join(value, "")
+
+		formattedHeader := fmt.Sprintf("> %s: %s\n", yellow(name), headerVal)
+
+		buffer.Write([]byte(formattedHeader))
+	}
+
+	return buffer.Bytes()
+}
+
+func FormatFilePaths(filePaths []string) []byte {
+	buffer := bytes.Buffer{}
+
+	for _, filePath := range filePaths {
+
+		red := color.New(color.FgRed).SprintFunc()
+		green := color.New(color.FgGreen).SprintFunc()
+
+		formattedFilePath := fmt.Sprintf("%s%s=%s\n", red("@"), green("file"), filePath)
+
+		buffer.Write([]byte(formattedFilePath))
+	}
+
+	return buffer.Bytes()
+}
+
+func FormatBody(body []byte, contentType string) ([]byte, error) {
+	formatter := "" // raw text
+	if strings.Contains(contentType, "application/json") {
+		formatter = "json"
+	} else if strings.Contains(contentType, "text/html") {
+		formatter = "html"
+	}
+
+	if len(body) == 0 {
+		return []byte{}, nil
+	}
+
+	buffer := bytes.Buffer{}
+	err := quick.Highlight(&buffer, string(body), formatter, "terminal", "")
+	if err != nil {
+		return []byte{}, nil
+	}
+
+	return buffer.Bytes(), nil
 }

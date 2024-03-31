@@ -10,7 +10,6 @@ import (
 	"net/http"
 	"net/url"
 	"os"
-	"path"
 	"path/filepath"
 	"strings"
 )
@@ -114,9 +113,13 @@ func parseHumanReadableBody(sc *bufio.Scanner) ([]byte, error) {
 	body := []byte{}
 	for sc.Scan() {
 		body = append(body, sc.Bytes()...)
+
+		// scanning removes newline I guess, add it back to make sure it looks
+		// the same in the file as it is in the output
+		body = append(body, '\n')
 	}
 
-	if sc.Err() != io.EOF {
+	if sc.Err() != nil {
 		return []byte{}, sc.Err()
 	}
 
@@ -151,6 +154,9 @@ type HurlFile struct {
 	Headers   map[string]string
 	Body      []byte
 	FilePaths []string
+
+	// CLI and hurlrc options
+	Config Config
 }
 
 func ParseHurlFile(r io.Reader) (HurlFile, error) {
@@ -184,13 +190,19 @@ func ParseHurlFile(r io.Reader) (HurlFile, error) {
 
 	// headers
 	headerMap := make(map[string]string)
-	for sc.Scan() && sc.Text() != "" {
-		fmt.Println(sc.Text())
+
+	scanFoundToken := sc.Scan()
+	for scanFoundToken && strings.TrimSpace(sc.Text()) != "" {
 		headerComponents := strings.Split(sc.Text(), ": ")
 		headerName := headerComponents[NAME]
 		headerVal := headerComponents[VALUE]
 
 		headerMap[headerName] = headerVal
+
+		scanFoundToken = sc.Scan()
+	}
+	if sc.Err() != nil {
+		return HurlFile{}, sc.Err()
 	}
 
 	h.Headers = headerMap
@@ -203,7 +215,8 @@ func ParseHurlFile(r io.Reader) (HurlFile, error) {
 
 	h.Headers["User-Agent"] = "hurl/0.1.0"
 
-	if sc.Err() == io.EOF {
+	// no body, done
+	if !scanFoundToken {
 		return h, nil
 	}
 
@@ -234,19 +247,15 @@ func ParseHurlFile(r io.Reader) (HurlFile, error) {
 	return h, nil
 }
 
-func (h HurlFile) Output() {
-	// statusLine
-
-	// headers
-
-	// body
-}
-
-func (h HurlFile) GetHttpRequest() (*http.Request, error) {
+func (h HurlFile) NewRequest() (*http.Request, error) {
 	body := &bytes.Buffer{}
 
 	for _, filePath := range h.FilePaths {
-		file, _ := os.Open(filePath)
+		file, err := os.Open(filePath)
+		if err != nil {
+			return nil, err
+		}
+
 		defer file.Close()
 
 		writer := multipart.NewWriter(body)
@@ -255,7 +264,7 @@ func (h HurlFile) GetHttpRequest() (*http.Request, error) {
 		writer.Close()
 	}
 
-	if body.Len() > 0 {
+	if len(h.Body) > 0 {
 		body.Write(h.Body)
 	}
 
@@ -263,6 +272,12 @@ func (h HurlFile) GetHttpRequest() (*http.Request, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	header := http.Header{}
+	for name, val := range h.Headers {
+		header[name] = []string{val}
+	}
+	req.Header = header
 
 	return req, nil
 }

@@ -1,7 +1,6 @@
 package main
 
 import (
-	"errors"
 	"fmt"
 	"os"
 
@@ -9,7 +8,8 @@ import (
 )
 
 func main() {
-	options := src.InitOptions()
+	config := src.InitConfig()
+	hurlOutput := src.HurlOutput{Config: config}
 
 	if len(os.Args) < 2 {
 		fmt.Println("hurl: no hurl file provided")
@@ -19,26 +19,33 @@ func main() {
 	hurlFilePath := os.Args[len(os.Args)-1]
 
 	_, err := os.Stat(hurlFilePath)
-	if errors.Is(err, os.ErrNotExist) {
+	if err != nil {
 		fmt.Printf("hurl: file does not exist: %s\n", hurlFilePath)
 		os.Exit(1)
 	}
 
 	f, err := os.OpenFile(hurlFilePath, os.O_RDONLY, os.ModePerm)
 	if err != nil {
-		panic(err)
+		fmt.Printf("hurl: %s", err.Error())
+		os.Exit(1)
 	}
 
 	hurlFile, err := src.ParseHurlFile(f)
 	if err != nil {
-		fmt.Println("hurl: ", err)
+		fmt.Printf("hurl: %s", err.Error())
 		os.Exit(1)
 	}
 	f.Close()
 
-	if *options.Verbose {
-		hurlFile.Output()
+	req, err := hurlFile.NewRequest()
+
+	if *config.Verbose {
+		err = hurlOutput.OutputRequest(hurlFile, *req)
+		if err != nil {
+			fmt.Printf("hurl: %s", err.Error())
+			os.Exit(1)
+		}
 	}
 
-	fmt.Printf("%+v\n", hurlFile)
+	// res, err := http.DefaultClient.Do(req)
 }
