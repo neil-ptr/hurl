@@ -49,7 +49,7 @@ brews:
   - name: hurl
     tap:
       owner: neil-and-void
-      name: homebrew-hurl
+      name: hurl
     homepage: "https://github.com/neil-and-void/hurl"
     description: "A powerful tool for sending HTTP requests"
     url_template: "https://github.com/neil-and-void/hurl/releases/download/{{ .Tag }}/{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}.tar.gz"
