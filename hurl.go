@@ -9,7 +9,7 @@ import (
 )
 
 func main() {
-	options := src.InitOptions()
+	// options := src.InitOptions()
 
 	if len(os.Args) < 2 {
 		fmt.Println("hurl: no hurl file provided")
@@ -29,34 +29,12 @@ func main() {
 		panic(err)
 	}
 
-	hurlRequest, err := src.ParseHurlFile(f, options)
+	hurlFile, err := src.ParseHurlFile(f)
 	if err != nil {
 		fmt.Println("hurl: ", err)
 		os.Exit(1)
 	}
 	f.Close()
 
-	if *options.Verbose == true {
-		formattedRequest, err := src.FormatRequest(hurlRequest)
-		if err != nil {
-			fmt.Println("hurl: ", err)
-			os.Exit(1)
-		}
-
-		fmt.Printf("%s", formattedRequest)
-	}
-
-	res, err := hurlRequest.Do()
-	if err != nil {
-		fmt.Println("hurl: ", err)
-		os.Exit(1)
-	}
-
-	formattedReponse, err := src.FormatResponse(res)
-	if err != nil {
-		fmt.Println("hurl: ", err)
-		os.Exit(1)
-	}
-
-	fmt.Printf("%s\n", formattedReponse)
+	fmt.Printf("%+v\n", hurlFile)
 }

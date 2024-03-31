@@ -1,0 +1,12 @@
+POST {{  BASE_URL}}/todos/1
+Content-Type: application/json
+Authorization: Bearer {{TOKEN}}
+
+{
+  "test": "hi",
+  "number": 1234,
+  "null": null,
+  "obj": {
+    "arr": [1,2,3]
+  }
+}

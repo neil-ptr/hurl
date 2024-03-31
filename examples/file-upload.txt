@@ -1,0 +1,4 @@
+POST https://echo.free.beeceptor.com/posts
+Content-Type: image/png
+
+@file=path/to/idk
