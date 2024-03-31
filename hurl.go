@@ -9,7 +9,7 @@ import (
 )
 
 func main() {
-	// options := src.InitOptions()
+	options := src.InitOptions()
 
 	if len(os.Args) < 2 {
 		fmt.Println("hurl: no hurl file provided")
@@ -35,6 +35,10 @@ func main() {
 		os.Exit(1)
 	}
 	f.Close()
+
+	if *options.Verbose {
+		hurlFile.Output()
+	}
 
 	fmt.Printf("%+v\n", hurlFile)
 }

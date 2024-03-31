@@ -2,6 +2,8 @@ package src
 
 import (
 	"fmt"
+	"net/url"
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -74,7 +76,7 @@ func TestProcessLineFailureInvalidFirstChar(t *testing.T) {
 
 	_, err := processLine(line)
 
-	assert.ErrorContains(t, err, "template variable has to begin with letter")
+	assert.ErrorContains(t, err, "template variable must begin with letter")
 }
 
 func TestProcessLineFailureEmptyTemplateVar(t *testing.T) {
@@ -85,6 +87,49 @@ func TestProcessLineFailureEmptyTemplateVar(t *testing.T) {
 	assert.ErrorContains(t, err, "template variable cannot be empty")
 }
 
-func TestParseHurlFile(t *testing.T) {
+func TestParseHurlFileNoBody(t *testing.T) {
+	r := strings.NewReader("GET https://example.com")
 
+	parsedUrl, _ := url.Parse("https://example.com")
+
+	hurlFile, err := ParseHurlFile(r)
+
+	assert.Nil(t, err)
+
+	assert.Equal(t, *parsedUrl, hurlFile.URL)
+}
+
+func TestParseHurlFileReadableBody(t *testing.T) {
+	r := strings.NewReader("POST https://example.com\nContent-Type: application/json\n\n{\"hi\": 1}")
+
+	parsedUrl, _ := url.Parse("https://example.com")
+
+	headers := make(map[string]string)
+	headers["User-Agent"] = "hurl/0.1.0"
+	headers["Content-Type"] = "application/json"
+
+	hurlFile, err := ParseHurlFile(r)
+
+	assert.Nil(t, err)
+
+	assert.Equal(t, *parsedUrl, hurlFile.URL)
+	assert.Equal(t, headers, hurlFile.Headers)
+}
+
+func TestParseHurlFileFilePaths(t *testing.T) {
+	r := strings.NewReader("POST https://example.com\nContent-Type: image/png\n\n@file=path/idk.png")
+
+	parsedUrl, _ := url.Parse("https://example.com")
+
+	headers := make(map[string]string)
+	headers["User-Agent"] = "hurl/0.1.0"
+	headers["Content-Type"] = "image/png"
+
+	hurlFile, err := ParseHurlFile(r)
+
+	assert.Nil(t, err)
+
+	assert.Equal(t, *parsedUrl, hurlFile.URL)
+	assert.Equal(t, headers, hurlFile.Headers)
+	assert.Equal(t, []string{"path/idk.png"}, hurlFile.FilePaths)
 }

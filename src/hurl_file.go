@@ -6,8 +6,12 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"mime/multipart"
+	"net/http"
 	"net/url"
 	"os"
+	"path"
+	"path/filepath"
 	"strings"
 )
 
@@ -181,6 +185,7 @@ func ParseHurlFile(r io.Reader) (HurlFile, error) {
 	// headers
 	headerMap := make(map[string]string)
 	for sc.Scan() && sc.Text() != "" {
+		fmt.Println(sc.Text())
 		headerComponents := strings.Split(sc.Text(), ": ")
 		headerName := headerComponents[NAME]
 		headerVal := headerComponents[VALUE]
@@ -227,4 +232,37 @@ func ParseHurlFile(r io.Reader) (HurlFile, error) {
 	}
 
 	return h, nil
+}
+
+func (h HurlFile) Output() {
+	// statusLine
+
+	// headers
+
+	// body
+}
+
+func (h HurlFile) GetHttpRequest() (*http.Request, error) {
+	body := &bytes.Buffer{}
+
+	for _, filePath := range h.FilePaths {
+		file, _ := os.Open(filePath)
+		defer file.Close()
+
+		writer := multipart.NewWriter(body)
+		part, _ := writer.CreateFormFile("file", filepath.Base(file.Name()))
+		io.Copy(part, file)
+		writer.Close()
+	}
+
+	if body.Len() > 0 {
+		body.Write(h.Body)
+	}
+
+	req, err := http.NewRequest(h.Method, h.URL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
 }
