@@ -5,20 +5,20 @@
 class Hurl < Formula
   desc "A powerful tool for sending HTTP requests"
   homepage "https://github.com/neil-and-void/hurl"
-  version "0.2.2"
+  version "0.2.3"
 
   on_macos do
     if Hardware::CPU.arm?
-      url "https://github.com/neil-and-void/hurl/releases/download/v0.2.2/hurl_0.2.2_darwin_arm64.tar.gz"
-      sha256 "c40c496a18ff92506ea292451ddc61fcae75658ef7e19043f845741cc54ed360"
+      url "https://github.com/neil-and-void/hurl/releases/download/v0.2.3/hurl_0.2.3_darwin_arm64.tar.gz"
+      sha256 "a667478d3a407e6852f94bfbb5a7f847f20f3a23e0920bbdc08de94f2856f999"
 
       def install
         bin.install "hurl"
       end
     end
     if Hardware::CPU.intel?
-      url "https://github.com/neil-and-void/hurl/releases/download/v0.2.2/hurl_0.2.2_darwin_amd64.tar.gz"
-      sha256 "ff833b5b659d29da4f8719f3322e94230c5941ebc341bbdcc6693d882d977b92"
+      url "https://github.com/neil-and-void/hurl/releases/download/v0.2.3/hurl_0.2.3_darwin_amd64.tar.gz"
+      sha256 "4ce01330f795d1bece2904eb9c7b36564414317f8f5ed0cbc5b69e32997861ed"
 
       def install
         bin.install "hurl"
@@ -28,16 +28,16 @@ class Hurl < Formula
 
   on_linux do
     if Hardware::CPU.arm? && Hardware::CPU.is_64_bit?
-      url "https://github.com/neil-and-void/hurl/releases/download/v0.2.2/hurl_0.2.2_linux_arm64.tar.gz"
-      sha256 "0d573cfdbbf02ad4acfd5bed10b7bd1b44c4a78368cc2904c351a9415d253aa5"
+      url "https://github.com/neil-and-void/hurl/releases/download/v0.2.3/hurl_0.2.3_linux_arm64.tar.gz"
+      sha256 "d41fba52259a0fec79d95332f028b5adad4e6db3e1449aa1f15c795daf32f7c3"
 
       def install
         bin.install "hurl"
       end
     end
     if Hardware::CPU.intel?
-      url "https://github.com/neil-and-void/hurl/releases/download/v0.2.2/hurl_0.2.2_linux_amd64.tar.gz"
-      sha256 "45f1ff7a13abe41870aaefb9bb07913230ffbb9139144bd419a88900c0cdfa1c"
+      url "https://github.com/neil-and-void/hurl/releases/download/v0.2.3/hurl_0.2.3_linux_amd64.tar.gz"
+      sha256 "74a4695cf122f41121c4799d3f774526327156281f3a1e6f1e2aab05dcf11c52"
 
       def install
         bin.install "hurl"
