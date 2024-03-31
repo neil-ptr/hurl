@@ -58,7 +58,7 @@ TODO
 }
 ```
 
-you can also output responses to files using `-o` flag
+For large responses, you can also output response bodies to files using `-o` flag
 ```bash
 hurl -o=./response.json examples/post.txt
 ```
