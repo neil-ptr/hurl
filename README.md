@@ -1,8 +1,9 @@
 
-
-![cover](https://github.com/neil-and-void/hurl/assets/46465568/5c232cc1-f6ec-4b5f-ae9f-ac7d3c87c95a)
-
 # hurl 🤮
+
+https://github.com/neil-and-void/hurl/assets/46465568/adc2587e-844f-4459-bf90-cd5957e84ca5
+
+
 
 ## Overview
 
@@ -10,7 +11,8 @@ Hurl is a command-line tool inspired by HTTPie, Postman, and curl, designed for 
 
 
 
-https://github.com/neil-and-void/hurl/assets/46465568/adc2587e-844f-4459-bf90-cd5957e84ca5
+![cover](https://github.com/neil-and-void/hurl/assets/46465568/408c360b-36a8-4a9a-af4a-585a1854b8bd)
+
 
 
 ## Features
