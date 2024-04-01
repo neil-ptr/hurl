@@ -17,4 +17,4 @@ release:
 	@echo "Pushing tag $(version) to origin..."
 	git push origin $(version)
 	@echo "Releasing with GoReleaser..."
-	goreleaser release --rm-dist
+	goreleaser release --clean
