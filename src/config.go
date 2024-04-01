@@ -49,10 +49,9 @@ func InitConfig() (HurlConfig, error) {
 
 	flag.Parse()
 
-	_, err := os.Stat("hurl.json")
+	configFile, err := os.Open("hurl.json")
 
 	if !errors.Is(err, os.ErrNotExist) {
-		configFile, err := os.Open("hurl.json")
 		if err != nil {
 			return HurlConfig{}, err
 		}
