@@ -156,7 +156,7 @@ type HurlFile struct {
 	FilePaths []string
 
 	// CLI and hurlrc options
-	Config Config
+	Config HurlConfig
 }
 
 func ParseHurlFile(r io.Reader) (HurlFile, error) {

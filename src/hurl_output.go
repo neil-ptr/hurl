@@ -9,7 +9,7 @@ import (
 )
 
 type HurlOutput struct {
-	Config Config
+	Config HurlConfig
 }
 
 func (h HurlOutput) OutputRequest(hurlFile HurlFile, req http.Request) error {
@@ -60,8 +60,8 @@ func (h HurlOutput) OutputResponse(res http.Response) error {
 	}
 
 	bodyOutputPath := h.Config.BodyOutputPath
-	if bodyOutputPath != nil && len(*bodyOutputPath) > 0 {
-		err := os.WriteFile(*bodyOutputPath, bodyBytes, 0644)
+	if len(bodyOutputPath) > 0 {
+		err := os.WriteFile(bodyOutputPath, bodyBytes, 0644)
 		if err != nil {
 			return err
 		}
@@ -69,7 +69,7 @@ func (h HurlOutput) OutputResponse(res http.Response) error {
 		title := FormatFilePathsTitle()
 		buffer.Write([]byte(title))
 
-		filePaths := FormatFilePaths([]string{*bodyOutputPath})
+		filePaths := FormatFilePaths([]string{bodyOutputPath})
 		buffer.Write(filePaths)
 
 		fmt.Printf("%s\n", buffer.String())

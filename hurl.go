@@ -9,7 +9,12 @@ import (
 )
 
 func main() {
-	config := src.InitConfig()
+	config, err := src.InitConfig()
+	if err != nil {
+		fmt.Printf("hurl: %s\n", err.Error())
+		os.Exit(1)
+	}
+
 	hurlOutput := src.HurlOutput{Config: config}
 
 	if len(os.Args) < 2 {
@@ -19,7 +24,7 @@ func main() {
 
 	hurlFilePath := os.Args[len(os.Args)-1]
 
-	_, err := os.Stat(hurlFilePath)
+	_, err = os.Stat(hurlFilePath)
 	if err != nil {
 		fmt.Printf("hurl: file does not exist: %s\n", hurlFilePath)
 		os.Exit(1)
@@ -40,7 +45,7 @@ func main() {
 
 	req, err := hurlFile.NewRequest()
 
-	if *config.Verbose {
+	if config.Verbose {
 		err = hurlOutput.OutputRequest(hurlFile, *req)
 		if err != nil {
 			fmt.Printf("hurl: %s", err.Error())
