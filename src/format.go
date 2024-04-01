@@ -60,14 +60,14 @@ func formatStatusCode(statusCode int, status string) string {
 	return fmt.Sprintf("%s", coloredStatus(formatted))
 }
 
-func FormatHeaders(headers http.Header) []byte {
+func FormatHeaders(headers http.Header, directionCharacter string) []byte {
 	buffer := bytes.Buffer{}
 
 	for name, value := range headers {
 		yellow := color.New(color.FgYellow).SprintFunc()
 		headerVal := strings.Join(value, "")
 
-		formattedHeader := fmt.Sprintf("> %s: %s\n", yellow(name), headerVal)
+		formattedHeader := fmt.Sprintf("%s %s: %s\n", directionCharacter, yellow(name), headerVal)
 
 		buffer.Write([]byte(formattedHeader))
 	}

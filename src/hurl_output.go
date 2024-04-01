@@ -18,7 +18,7 @@ func (h HurlOutput) OutputRequest(hurlFile HurlFile, req http.Request) error {
 	requestLine := FormatRequestLine(req)
 	buffer.Write([]byte(requestLine))
 
-	headers := FormatHeaders(req.Header)
+	headers := FormatHeaders(req.Header, ">")
 	buffer.Write(headers)
 
 	// separate body with newline
@@ -47,7 +47,7 @@ func (h HurlOutput) OutputResponse(res http.Response) error {
 	statusLine := FormatStatusLine(res)
 	buffer.Write([]byte(statusLine))
 
-	headers := FormatHeaders(res.Header)
+	headers := FormatHeaders(res.Header, "<")
 	buffer.Write([]byte(headers))
 
 	// separate body with newline
