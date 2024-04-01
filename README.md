@@ -58,7 +58,7 @@ The [examples](https://github.com/neil-and-void/hurl/tree/main/examples) folder 
 }
 ```
 
-For large responses, you can also output response bodies to files using `-o` flag
+For large responses or non-human readable formats (.pdf, .png, .word...), you can also output response bodies to files using `-o` flag
 ```bash
 hurl -o=./response.json examples/post.txt
 ```
