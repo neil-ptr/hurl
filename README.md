@@ -66,6 +66,7 @@ hurl -o=./response.json examples/post.txt
 You can configure hurl by creating a `hurl.json` file in your current working directory. Available configurations include setting `.env` file path, default headers (TODO), response timeout (TODO).
 
 ## Flags
+all flags need to come before the path to the request file.
 * `-o=/path/to/file.json`: path to a file to output response body content
 * `-v`: verbose out, prints all request and response headers in a format similar to a raw HTTP request and response
 
