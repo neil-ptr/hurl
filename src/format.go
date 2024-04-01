@@ -3,7 +3,6 @@ package src
 import (
 	"bytes"
 	"fmt"
-	"io"
 	"net/http"
 	"strings"
 
@@ -133,45 +132,4 @@ func FormatStatusLine(res http.Response) string {
 	status := formatStatusCode(res.StatusCode, res.Status)
 
 	return fmt.Sprintf("< %s%s\n", protocol, status)
-}
-
-func FormatResponse(hurlResponse HurlResponse) ([]byte, error) {
-	formattedResponse := []byte{}
-
-	protocol := formatProtocol(hurlResponse.Response.Proto)
-	status := formatStatusCode(hurlResponse.Response.StatusCode, hurlResponse.Response.Status)
-	requestLine := fmt.Sprintf("< %s%s\n", protocol, status)
-
-	formattedResponse = append(formattedResponse, []byte(requestLine)...)
-
-	coloredHeaderName := color.New(color.FgYellow).SprintFunc()
-	for name, value := range hurlResponse.Response.Header {
-		formattedResponse = append(formattedResponse, []byte(fmt.Sprintf("< %s: %s\n", coloredHeaderName(name), strings.Join(value, "")))...)
-	}
-
-	// separate headers from body
-	formattedResponse = append(formattedResponse, []byte("< \n")...)
-
-	body, err := io.ReadAll(hurlResponse.Response.Body)
-	if err != nil {
-		return []byte{}, err
-	}
-
-	formatter := "" // raw text
-	contentType := hurlResponse.Response.Header.Get("Content-Type")
-	if strings.Contains(contentType, "application/json") {
-		formatter = "json"
-	} else if strings.Contains(contentType, "text/html") {
-		formatter = "html"
-	}
-
-	if len(body) == 0 {
-		return []byte{}, nil
-	}
-
-	buffer := bytes.Buffer{}
-	err = quick.Highlight(&buffer, string(body), formatter, "terminal", "")
-	formattedResponse = append(formattedResponse, buffer.Bytes()...)
-
-	return formattedResponse, nil
 }
