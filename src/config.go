@@ -3,6 +3,7 @@ package src
 import (
 	"bufio"
 	"encoding/json"
+	"errors"
 	"flag"
 	"io"
 	"os"
@@ -48,25 +49,29 @@ func InitConfig() (HurlConfig, error) {
 
 	flag.Parse()
 
-	configFile, err := os.Open("hurl.json")
-	if err != nil {
-		return HurlConfig{}, err
-	}
+	_, err := os.Stat("hurl.json")
 
-	configFileBytes, err := io.ReadAll(configFile)
-	if err != nil {
-		return HurlConfig{}, err
-	}
+	if !errors.Is(err, os.ErrNotExist) {
+		configFile, err := os.Open("hurl.json")
+		if err != nil {
+			return HurlConfig{}, err
+		}
 
-	var hurlConfigFile hurlConfigFile
-	err = json.Unmarshal(configFileBytes, &hurlConfigFile)
-	if err != nil {
-		return HurlConfig{}, err
-	}
+		configFileBytes, err := io.ReadAll(configFile)
+		if err != nil {
+			return HurlConfig{}, err
+		}
 
-	err = readEnvironmentVariables(hurlConfigFile.EnvFilePath)
-	if err != nil {
-		return HurlConfig{}, err
+		var hurlConfigFile hurlConfigFile
+		err = json.Unmarshal(configFileBytes, &hurlConfigFile)
+		if err != nil {
+			return HurlConfig{}, err
+		}
+
+		err = readEnvironmentVariables(hurlConfigFile.EnvFilePath)
+		if err != nil {
+			return HurlConfig{}, err
+		}
 	}
 
 	return HurlConfig{
