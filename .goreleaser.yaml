@@ -48,8 +48,8 @@ changelog:
 brews:
   - repository:
       owner: neil-and-void
-      name: hurl
+      name: homebrew-hurl
     folder: Formula
-    homepage: "https://github.com/neil-and-void/homebrew-hurl"
+    homepage: "https://github.com/neil-and-void/hurl"
     description: "Postman for terminal workflows"
     caveats: "Thanks for installing hurl!"
