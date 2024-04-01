@@ -63,7 +63,13 @@ For large responses, you can also output response bodies to files using `-o` fla
 hurl -o=./response.json examples/post.txt
 ```
 ## Configuration
-You can configure hurl by creating a `hurl.json` file in your current working directory. Available configurations include setting `.env` file path, default headers (TODO), response timeout (TODO).
+You can configure hurl by creating a `hurl.json` file in your current working directory. Available configurations include setting `.env` file path, default headers (TODO), response timeout (TODO). Below is an example config.
+```yaml
+{
+    // path to your .env file
+    "env": "/path/to/.env/file"
+}
+```
 
 ## Flags
 all flags need to come before the path to the request file.
