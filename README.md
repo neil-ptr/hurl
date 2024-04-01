@@ -17,7 +17,12 @@ Hurl is a command-line tool inspired by HTTPie, Postman, and curl, designed for 
 - **History & Repeat**: Keep a history of your requests and repeat them with a single command.
 
 ## Installation
-TODO
+
+```bash
+brew update
+brew tap neil-and-void/hurl
+brew install neil-and-void/hurl/hurl
+```
 
 ## Usage
 
