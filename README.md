@@ -21,6 +21,8 @@ TODO
 
 ## Usage
 
+The [examples](https://github.com/neil-and-void/hurl/tree/main/examples) folder has some simple use cases to copy and edit to tailor to your own requests.
+
 1. **Creating a Request File**: Create a new file (e.g., `request.txt`) and write your HTTP request following the format:
 
     ```
