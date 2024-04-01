@@ -7,6 +7,7 @@ run: build
 test: build
 	go test ./...
 
+# make release version=v1.0.1
 .PHONY: release
 release:
 	@echo "Checking out main branch..."
