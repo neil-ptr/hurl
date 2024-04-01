@@ -32,32 +32,40 @@ func main() {
 
 	f, err := os.OpenFile(hurlFilePath, os.O_RDONLY, os.ModePerm)
 	if err != nil {
-		fmt.Printf("hurl: %s", err.Error())
+		fmt.Printf("hurl: %s\n", err.Error())
 		os.Exit(1)
 	}
 
 	hurlFile, err := src.ParseHurlFile(f)
 	if err != nil {
-		fmt.Printf("hurl: %s", err.Error())
+		fmt.Printf("hurl: %s\n", err.Error())
 		os.Exit(1)
 	}
 	f.Close()
 
 	req, err := hurlFile.NewRequest()
+	if err != nil {
+		fmt.Printf("hurl: %s\n", err.Error())
+		os.Exit(1)
+	}
 
 	if config.Verbose {
 		err = hurlOutput.OutputRequest(hurlFile, *req)
 		if err != nil {
-			fmt.Printf("hurl: %s", err.Error())
+			fmt.Printf("hurl: %s\n", err.Error())
 			os.Exit(1)
 		}
 	}
 
 	res, err := http.DefaultClient.Do(req)
+	if err != nil {
+		fmt.Printf("hurl: %s\n", err.Error())
+		os.Exit(1)
+	}
 
 	err = hurlOutput.OutputResponse(*res)
 	if err != nil {
-		fmt.Printf("hurl: %s", err.Error())
+		fmt.Printf("hurl: %s\n", err.Error())
 		os.Exit(1)
 	}
 

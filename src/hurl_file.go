@@ -81,14 +81,13 @@ func processLine(line []byte) (string, error) {
 			}
 
 			envVar := os.Getenv(string(trimmedTemplateVar))
-			if len(envVar) == 0 {
-				fmt.Printf("warning: could not find environment variable: %s", trimmedTemplateVar)
-				continue
+			if len(envVar) > 0 {
+				processedLine = append(processedLine, envVar...)
+				environmentVariableSet[string(trimmedTemplateVar)] = member
+			} else {
+				warning := fmt.Errorf("warning: could not find environment variable: %s\n", trimmedTemplateVar)
+				PrintWarning(warning)
 			}
-
-			processedLine = append(processedLine, envVar...)
-
-			environmentVariableSet[string(trimmedTemplateVar)] = member
 
 			// skip to just after second closing brace
 			i += 2
