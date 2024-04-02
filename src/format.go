@@ -34,8 +34,12 @@ func formatMethod(method string) string {
 	}
 }
 
-func formatPath(path string) string {
+func formatPath(p string) string {
 	coloredPath := color.New(color.BgWhite, color.FgBlack).SprintFunc()
+	path := p
+	if len(p) == 0 {
+		path = "/"
+	}
 	formatted := fmt.Sprintf(" %s ", path)
 	return fmt.Sprintf("%s", coloredPath(formatted))
 }
