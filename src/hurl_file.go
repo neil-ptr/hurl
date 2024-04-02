@@ -54,6 +54,10 @@ func validateTemplateVariable(v []byte) error {
 	return nil
 }
 
+func isValidMethod(m string) bool {
+	return m == "GET" || m == "POST" || m == "PUT" || m == "PATCH" || m == "DELETE"
+}
+
 func processLine(line []byte) (string, error) {
 	processedLine := []byte{}
 	trimmed := bytes.TrimSpace(line)
@@ -179,9 +183,14 @@ func ParseHurlFile(r io.Reader) (HurlFile, error) {
 		return HurlFile{}, errors.New("Not enough request line components")
 	}
 
-	parsedUrl, err := url.Parse(requestLineComponents[URL])
+	parsedUrl, err := url.ParseRequestURI(requestLineComponents[URL])
 	if err != nil {
 		return HurlFile{}, err
+	}
+
+	method := requestLineComponents[METHOD]
+	if !isValidMethod(method) {
+		return HurlFile{}, errors.New("invalid HTTP method")
 	}
 
 	h.URL = *parsedUrl
