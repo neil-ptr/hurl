@@ -58,6 +58,15 @@ func isValidMethod(m string) bool {
 	return m == "GET" || m == "POST" || m == "PUT" || m == "PATCH" || m == "DELETE"
 }
 
+func isFilePath(s string) bool {
+	filePathComponents := strings.SplitN(s, "=", 2)
+	if len(filePathComponents) < 2 || len(filePathComponents) < 2 || filePathComponents[0] != "@file" {
+		return false
+	}
+
+	return true
+}
+
 func processLine(line []byte) (string, error) {
 	processedLine := []byte{}
 	trimmed := bytes.TrimSpace(line)
@@ -129,23 +138,21 @@ func parseHumanReadableBody(sc *bufio.Scanner) ([]byte, error) {
 	return body, nil
 }
 
-func parseFilePaths(sc *bufio.Scanner) ([]string, error) {
+func parseFilePaths(body string) ([]string, error) {
 	filePaths := []string{}
 
-	for sc.Scan() {
-		line := sc.Text()
-		filePathLine := strings.Split(line, "@file=")
-
+	lines := strings.Split(body, "\n")
+	for _, line := range lines {
 		// filePathLine can only be 2 elements long and
 		// must have an empty first element after splitting on file path keyword
-		if len(filePathLine) > 2 || len(filePathLine) < 2 || (len(filePathLine) >= 1 && len(filePathLine[0]) != 0) {
+		if isFilePath(line) {
 			return []string{}, errors.New("invalid file path")
 		}
 
+		filePathLine := strings.SplitN(line, "=", 2)
 		filePath := filePathLine[1]
 
 		filePaths = append(filePaths, filePath)
-
 	}
 
 	return filePaths, nil
@@ -229,27 +236,42 @@ func ParseHurlFile(r io.Reader) (HurlFile, error) {
 	}
 
 	// body
-	contentType, exists := h.Headers["Content-Type"]
-	if !exists {
-		PrintWarning(errors.New("missing \"Content-Type\" header in request with a body"))
+	filePathPresent := false
+	bodyBuffer := bytes.Buffer{}
+	for sc.Scan() {
+		line := sc.Text()
+		if isFilePath(line) {
+			filePathPresent = true
+		}
+
+		bodyBuffer.Write(sc.Bytes())
+
+		// add newline because scanning removes it
+		bodyBuffer.Write([]byte{'\n'})
+	}
+	if sc.Err() != nil {
+		return HurlFile{}, sc.Err()
 	}
 
-	if isHumanReadableContentType(contentType) {
-		body, err := parseHumanReadableBody(sc)
+	if filePathPresent {
+		// read file paths
+		filePaths, err := parseFilePaths(bodyBuffer.String())
 		if err != nil {
 			return HurlFile{}, err
 		}
 
-		h.Body = body
+		h.FilePaths = filePaths
+		fmt.Println(filePaths)
 
-		return h, nil
-	}
+	} else {
+		_, exists := h.Headers["Content-Type"]
+		if !exists {
+			err := errors.New("no \"Content-Type\" defined, using \"text/plain\" content type")
+			PrintWarning(err)
+		}
 
-	filePaths, err := parseFilePaths(sc)
-	h.FilePaths = filePaths
-
-	if err != nil {
-		return HurlFile{}, err
+		// read as raw text
+		h.Body = bodyBuffer.Bytes()
 	}
 
 	return h, nil
