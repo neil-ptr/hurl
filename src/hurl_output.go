@@ -9,6 +9,8 @@ import (
 	"time"
 )
 
+var LOADING_CHARS = [...]string{"⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"}
+
 type HurlOutput struct {
 	Config HurlConfig
 }
@@ -40,15 +42,12 @@ func WaitForHttpRequest(req *http.Request) (*http.Response, error) {
 			PrintSpinner(i)
 			time.Sleep(50 * time.Millisecond)
 		}
-		i += 1
+		i = (i + 1) % len(LOADING_CHARS)
 	}
 }
 
 func PrintSpinner(i int) {
-	loadingChar := []string{"⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"}
-
-	i = i % len(loadingChar)
-	fmt.Printf("=== loading %s ===\r", loadingChar[i])
+	fmt.Printf("=== loading %s ===\r", LOADING_CHARS[i])
 }
 
 func ClearSpinner() {
@@ -60,6 +59,9 @@ func (h HurlOutput) OutputRequest(hurlFile HurlFile, req http.Request) error {
 
 	requestLine := FormatRequestLine(req)
 	buffer.Write([]byte(requestLine))
+
+	// add this in manually since not set in http.Request for some reason
+	req.Header.Set("Host", req.Host)
 
 	headers := FormatHeaders(req.Header, ">")
 	buffer.Write(headers)
