@@ -31,8 +31,10 @@ func WaitForHttpRequest(req *http.Request) (*http.Response, error) {
 	for {
 		select {
 		case res := <-resCh:
+			ClearSpinner()
 			return res, nil
 		case err := <-errCh:
+			ClearSpinner()
 			return nil, err
 		default:
 			PrintSpinner(i)
@@ -49,6 +51,10 @@ func PrintSpinner(i int) {
 	fmt.Printf("=== loading %s ===\r", loadingChar[i])
 }
 
+func ClearSpinner() {
+	fmt.Print("\r")
+}
+
 func (h HurlOutput) OutputRequest(hurlFile HurlFile, req http.Request) error {
 	buffer := bytes.Buffer{}
 
@@ -59,6 +65,11 @@ func (h HurlOutput) OutputRequest(hurlFile HurlFile, req http.Request) error {
 	buffer.Write(headers)
 
 	// separate body with newline
+	if len(hurlFile.Body) == 0 {
+		fmt.Printf("%s\n", buffer.String())
+		return nil
+	}
+
 	buffer.Write([]byte("\n"))
 
 	if len(hurlFile.FilePaths) > 0 {
