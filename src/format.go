@@ -36,11 +36,11 @@ func formatMethod(method string) string {
 
 func formatPath(p string) string {
 	coloredPath := color.New(color.BgWhite, color.FgBlack).SprintFunc()
-	path := p
+	correctedPath := p
 	if len(p) == 0 {
-		path = "/"
+		correctedPath = "/"
 	}
-	formatted := fmt.Sprintf(" %s ", path)
+	formatted := fmt.Sprintf(" %s ", correctedPath)
 	return fmt.Sprintf("%s", coloredPath(formatted))
 }
 
