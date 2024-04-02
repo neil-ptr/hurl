@@ -46,7 +46,7 @@ func PrintSpinner(i int) {
 	loadingChar := []string{"⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"}
 
 	i = i % len(loadingChar)
-	fmt.Printf("loading %s\r", loadingChar[i])
+	fmt.Printf("=== loading %s ===\r", loadingChar[i])
 }
 
 func (h HurlOutput) OutputRequest(hurlFile HurlFile, req http.Request) error {
