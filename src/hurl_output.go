@@ -6,10 +6,47 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"time"
 )
 
 type HurlOutput struct {
 	Config HurlConfig
+}
+
+func WaitForHttpRequest(req *http.Request) (*http.Response, error) {
+	errCh := make(chan error)
+	resCh := make(chan *http.Response)
+
+	go func() {
+		res, err := http.DefaultClient.Do(req)
+		if err != nil {
+			errCh <- err
+			return
+		}
+
+		resCh <- res
+	}()
+
+	i := 0
+	for {
+		select {
+		case res := <-resCh:
+			return res, nil
+		case err := <-errCh:
+			return nil, err
+		default:
+			PrintSpinner(i)
+			time.Sleep(50 * time.Millisecond)
+		}
+		i += 1
+	}
+}
+
+func PrintSpinner(i int) {
+	loadingChar := []string{"⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"}
+
+	i = i % len(loadingChar)
+	fmt.Printf("loading %s\r", loadingChar[i])
 }
 
 func (h HurlOutput) OutputRequest(hurlFile HurlFile, req http.Request) error {

@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"net/http"
 	"os"
 
 	"github.com/neil-and-void/hurl/src"
@@ -57,7 +56,7 @@ func main() {
 		}
 	}
 
-	res, err := http.DefaultClient.Do(req)
+	res, err := src.WaitForHttpRequest(req)
 	if err != nil {
 		fmt.Printf("hurl: %s\n", err.Error())
 		os.Exit(1)
