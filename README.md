@@ -135,7 +135,7 @@ Authorization: Bearer jwt
 ### Multi Part (Use for Multiple File Upload) `multipart/form-data`
 ```yaml
 POST http://wealthsimple.com                       # [method] [url]
-Content-Type: image/png                            # [header]: [value]
+Content-Type: multipart/form-data                  # [header]: [value]
 Authorization: Bearer jwt            
                                                    # newline if there is a body
 form-data; name="jj"; value="abrams"
@@ -146,7 +146,7 @@ form-data; name="bruh2"; filename="image2.png"
 ### Form `application/x-www-form-urlencoded`
 ```yaml
 POST http://wealthsimple.com                       # [method] [url]
-Content-Type: image/png                            # [header]: [value]
+Content-Type: application/x-www-form-urlencoded    # [header]: [value]
 Authorization: Bearer jwt            
                                                    # newline if there is a body
 form-data; name="somename"; value="aslkdfjl"
