@@ -1,23 +1,20 @@
 
 # hurl
 
-https://github.com/neil-and-void/hurl/assets/46465568/adc2587e-844f-4459-bf90-cd5957e84ca5
 
 ## Motivation
 
 You're a developer working in tmux and neovim developing backend services but everytime you want to invoke an endpoint by making an http call you need to move your right hand from the home row (oh god 🤮) and CMD + arrow key over to your Postman app to then use your mouse to send a request.
 
+![cover](https://github.com/neil-and-void/hurl/assets/46465568/408c360b-36a8-4a9a-af4a-585a1854b8bd)
+
+
 ## Overview
 
 Hurl is a command-line tool inspired by Postman and curl, designed for developers who prefer to manage and execute HTTP requests from the terminal. Born out of a love for Neovim and the streamlined efficiency of terminal-based workflows, Hurl is crafted for those who thrive in the command-line environment. Hurl allows users to store their HTTP requests in files and execute them directly from the command line. Whether you're editing code, managing version control, or interacting with web services, Hurl is intended to keep you in your flow state in the comforting embrace of your terminal.
 
-
-
-![cover](https://github.com/neil-and-void/hurl/assets/46465568/408c360b-36a8-4a9a-af4a-585a1854b8bd)
-
-
-
 ## Features
+https://github.com/neil-and-void/hurl/assets/46465568/adc2587e-844f-4459-bf90-cd5957e84ca5
 
 - **Save and Reuse Requests**: Store your HTTP requests in simple text files for easy reuse and version control.
 - **Support for Multiple HTTP Methods**: GET, POST, PUT, DELETE, and PATCH.
