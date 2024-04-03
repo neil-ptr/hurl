@@ -61,7 +61,7 @@ The [examples](https://github.com/neil-and-void/hurl/tree/main/examples) folder 
 3. **Executing a Request**: Use the `hurl` command followed by the path to your request file:
 
     ```bash
-    hurl request.txt
+    $ hurl request.txt
     ```
 
 4. **Using Variables**: To use environment variables in your requests, define them in your files like this:
@@ -79,7 +79,7 @@ The [examples](https://github.com/neil-and-void/hurl/tree/main/examples) folder 
     And execute your request like this:
 
     ```bash
-    API_TOKEN=your_token_here hurl request.txt
+    $ API_TOKEN=your_token_here hurl request.txt
     ```
 
 5. **Viewing Response**: The response will be printed directly to your terminal, with syntax highlighting for JSON responses.
@@ -95,7 +95,7 @@ The [examples](https://github.com/neil-and-void/hurl/tree/main/examples) folder 
 
 For large responses or non-human readable formats (.pdf, .png, .word...), you can also output response bodies to files using `-o` flag
 ```bash
-hurl -o=./response.json examples/post.txt
+$ hurl -o=./response.json examples/post.txt
 ```
 
 
