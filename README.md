@@ -5,7 +5,7 @@ https://github.com/neil-and-void/hurl/assets/46465568/adc2587e-844f-4459-bf90-cd
 
 ## Motivation
 
-You're a developer working in tmux and neovim developing backend services but everytime you want to invoke an endpoint by making an http call you need to move your right hand from the home row (oh god 🤮) and CMD + arrow key over to your Postman app to then send use your mouse to send a request.
+You're a developer working in tmux and neovim developing backend services but everytime you want to invoke an endpoint by making an http call you need to move your right hand from the home row (oh god 🤮) and CMD + arrow key over to your Postman app to then use your mouse to send a request.
 
 ## Overview
 
