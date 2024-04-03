@@ -9,7 +9,7 @@ You're a developer working in tmux and neovim developing backend services but ev
 
 ## Overview
 
-Hurl is a command-line tool inspired by Postman, and curl, designed for developers who prefer to manage and execute HTTP requests from the terminal. Born out of a love for Neovim and the streamlined efficiency of terminal-based workflows, Hurl is crafted for those who thrive in the command-line environment. Hurl allows users to store their HTTP requests in files and execute them directly from the command line. Whether you're editing code, managing version control, or interacting with web services, Hurl is intended to keep you in your flow state in the comforting embrace of your terminal.
+Hurl is a command-line tool inspired by Postman and curl, designed for developers who prefer to manage and execute HTTP requests from the terminal. Born out of a love for Neovim and the streamlined efficiency of terminal-based workflows, Hurl is crafted for those who thrive in the command-line environment. Hurl allows users to store their HTTP requests in files and execute them directly from the command line. Whether you're editing code, managing version control, or interacting with web services, Hurl is intended to keep you in your flow state in the comforting embrace of your terminal.
 
 
 
