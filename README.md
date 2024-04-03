@@ -149,8 +149,7 @@ POST http://wealthsimple.com                       # [method] [url]
 Content-Type: application/x-www-form-urlencoded    # [header]: [value]
 Authorization: Bearer jwt            
                                                    # newline if there is a body
-form-data; name="somename"; value="aslkdfjl"
-form-data; name="somename"; value="aslkdfjl"
+name=John+Doe&age=30&city=New+York
 ```
 
 ### Environment Variables
