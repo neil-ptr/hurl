@@ -34,7 +34,7 @@ brew install neil-and-void/hurl/hurl
 
 ## Usage
 
-The [examples](https://github.com/neil-and-void/hurl/tree/main/examples) folder has some simple use cases to copy and edit to tailor to your own requests.
+The [examples](https://github.com/neil-and-void/hurl/tree/main/examples) folder has some requests to copy as a starting point to edit and tailor to your own needs.
 
 1. **Creating a Request File**: Create a new file (e.g., `request.txt`) and write your HTTP request following the format:
 
