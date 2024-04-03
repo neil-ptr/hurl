@@ -139,8 +139,8 @@ Content-Type: multipart/form-data                  # [header]: [value]
 Authorization: Bearer jwt            
                                                    # newline if there is a body
 form-data; name="jj"; value="abrams"
-form-data; name="bruh"; filename="image.png"
-form-data; name="bruh2"; filename="image2.png"
+form-data; name="bruh"; filename="path/to/file/image.png"
+form-data; name="bruh2"; filename="path/to/file/image2.png"
 ```
 
 ### Form `application/x-www-form-urlencoded`
