@@ -1,0 +1,8 @@
+POST {{REQ_BIN_URL}}
+Content-Type: multipart/form-data
+Authorization: bearer token_val
+
+form-data; name="jj"; value="abrams"
+form-data; name="more"; value="stuff"
+form-data; name="bruh"; filename="test_files/gopher.png"
+form-data; name="enve"; value="moooooore"

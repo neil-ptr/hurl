@@ -1,5 +1,5 @@
 POST {{BASE_URL}}/posts
-Content-Type: image/png
 Authorization: bearer token_val
+Content-Type: image/png
 
-@file=/Users/neilviloria/personal/hurl/test.png
+@file=/Users/neilviloria/personal/hurl/test_files/gopher.png

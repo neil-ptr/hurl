@@ -6,6 +6,7 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"strings"
 	"time"
 )
 
@@ -47,7 +48,7 @@ func WaitForHttpRequest(req *http.Request) (*http.Response, error) {
 }
 
 func PrintSpinner(i int) {
-	fmt.Printf("=== loading %s ===\r", LOADING_CHARS[i])
+	fmt.Printf("=== sending %s ===\r", LOADING_CHARS[i])
 }
 
 func ClearSpinner() {
@@ -67,17 +68,31 @@ func (h HurlOutput) OutputRequest(hurlFile HurlFile, req http.Request) error {
 	buffer.Write(headers)
 
 	// separate body with newline
-	if len(hurlFile.Body) == 0 {
+	if len(hurlFile.Body) == 0 && len(hurlFile.FileEmbed) == 0 && len(hurlFile.MultipartFormData) == 0 {
 		fmt.Printf("%s\n", buffer.String())
 		return nil
 	}
 
 	buffer.Write([]byte("\n"))
 
-	if len(hurlFile.FilePaths) > 0 {
-		buffer.Write(FormatFilePaths(hurlFile.FilePaths))
+	contentType := req.Header.Get("Content-Type")
+
+	contentTypeParts := strings.SplitN(contentType, "; ", 2)
+	mimetype := contentTypeParts[0]
+
+	if mimetype == "multipart/form-data" {
+		body, err := FormatMultiPart(hurlFile.MultipartFormData, hurlFile.MultipartBoundary)
+		if err != nil {
+			return err
+		}
+
+		buffer.Write(body)
+
+	} else if hurlFile.FileEmbed != "" {
+		fileEmbed := fmt.Sprintf("%s\n", FormatFileEmbed(hurlFile.FileEmbed))
+		buffer.Write([]byte(fileEmbed))
+
 	} else {
-		contentType := req.Header.Get("Content-Type")
 		body, err := FormatBody(hurlFile.Body, contentType)
 		if err != nil {
 			return err
@@ -119,7 +134,7 @@ func (h HurlOutput) OutputResponse(res http.Response) error {
 		title := FormatFilePathsTitle()
 		buffer.Write([]byte(title))
 
-		filePaths := FormatFilePaths([]string{bodyOutputPath})
+		filePaths := FormatFileEmbed(bodyOutputPath)
 		buffer.Write(filePaths)
 
 		fmt.Printf("%s\n", buffer.String())

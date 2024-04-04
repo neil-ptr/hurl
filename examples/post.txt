@@ -1,4 +1,4 @@
-POST https://jsonplaceholder.typicode.com/posts
+POST {{REQ_BIN_URL}}
 Content-Type: application/json
 
 {
