@@ -3,7 +3,10 @@ package src
 import (
 	"bytes"
 	"fmt"
+	"mime/multipart"
 	"net/http"
+	"net/textproto"
+	"os"
 	"strings"
 
 	"github.com/alecthomas/chroma/v2/quick"
@@ -84,18 +87,15 @@ func FormatFilePathsTitle() string {
 	return fmt.Sprintf("%s\n", title(" body contents outputted to: "))
 }
 
-func FormatFilePaths(filePaths []string) []byte {
+func FormatFileEmbed(fileEmbed string) []byte {
 	buffer := bytes.Buffer{}
 
-	for _, filePath := range filePaths {
+	red := color.New(color.FgRed).SprintFunc()
+	green := color.New(color.FgGreen).SprintFunc()
 
-		red := color.New(color.FgRed).SprintFunc()
-		green := color.New(color.FgGreen).SprintFunc()
+	formattedFilePath := fmt.Sprintf("%s%s=%s", red("@"), green("file"), fileEmbed)
 
-		formattedFilePath := fmt.Sprintf("%s%s=%s\n", red("@"), green("file"), filePath)
-
-		buffer.Write([]byte(formattedFilePath))
-	}
+	buffer.Write([]byte(formattedFilePath))
 
 	return buffer.Bytes()
 }
@@ -136,4 +136,45 @@ func FormatStatusLine(res http.Response) string {
 	status := formatStatusCode(res.StatusCode, res.Status)
 
 	return fmt.Sprintf("< %s%s\n", protocol, status)
+}
+
+func FormatMultiPart(multipartItems []MultiPartItem, boundary string) ([]byte, error) {
+	body := &bytes.Buffer{}
+	writer := multipart.NewWriter(body)
+	writer.SetBoundary(boundary)
+
+	for _, multiPartItem := range multipartItems {
+		if multiPartItem.IsFilePath {
+			file, err := os.Stat(multiPartItem.Value)
+			if err != nil {
+				return []byte{}, err
+			}
+
+			fileData, err := os.ReadFile(multiPartItem.Value)
+			if err != nil {
+				return []byte{}, err
+			}
+
+			mimeHeader := make(textproto.MIMEHeader)
+
+			mimeHeader.Set("Content-Disposition", fmt.Sprintf("form-data; name=\"%s\"; filename=\"%s\"", multiPartItem.Name, file.Name()))
+			mimeHeader.Set("Content-Type", http.DetectContentType(fileData))
+
+			part, err := writer.CreatePart(mimeHeader)
+			if err != nil {
+				return []byte{}, err
+			}
+
+			part.Write(FormatFileEmbed(multiPartItem.Value))
+		} else {
+			err := writer.WriteField(multiPartItem.Name, multiPartItem.Value)
+			if err != nil {
+				return []byte{}, err
+			}
+		}
+	}
+
+	writer.Close()
+
+	return body.Bytes(), nil
 }

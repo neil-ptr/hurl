@@ -67,5 +67,4 @@ func main() {
 		fmt.Printf("hurl: %s\n", err.Error())
 		os.Exit(1)
 	}
-
 }

@@ -7,19 +7,26 @@ import (
 	"fmt"
 	"io"
 	"mime/multipart"
+
 	"net/http"
+	"net/textproto"
 	"net/url"
 	"os"
-	"path/filepath"
 	"strings"
 )
 
 const (
-	METHOD   = 0
-	URL      = 1
-	PROTOCOL = 2
-	NAME     = 0
-	VALUE    = 1
+	METHOD             = 0
+	URL                = 1
+	PROTOCOL           = 2
+	NAME               = 0
+	VALUE              = 1
+	FILE_EMBED_TAG     = 0
+	FILE_EMBED         = 1
+	MULTIPART_FORM_TAG = 0
+	MULTIPART_NAME     = 1
+	MULTIPART_VALUE    = 2
+	KEY                = 0
 )
 
 func isNum(c byte) bool {
@@ -58,16 +65,16 @@ func isValidMethod(m string) bool {
 	return m == "GET" || m == "POST" || m == "PUT" || m == "PATCH" || m == "DELETE"
 }
 
-func isFilePath(s string) bool {
+func extractFileEmbedPath(s string) string {
 	filePathComponents := strings.SplitN(s, "=", 2)
-	if len(filePathComponents) < 2 || len(filePathComponents) < 2 || filePathComponents[0] != "@file" {
-		return false
+	if len(filePathComponents) < 2 || len(filePathComponents) > 2 || filePathComponents[FILE_EMBED_TAG] != "@file" {
+		return ""
 	}
 
-	return true
+	return filePathComponents[FILE_EMBED]
 }
 
-func processLine(line []byte) (string, error) {
+func interpolateEnvVar(line []byte) (string, error) {
 	processedLine := []byte{}
 	trimmed := bytes.TrimSpace(line)
 
@@ -117,66 +124,115 @@ func processLine(line []byte) (string, error) {
 	return string(processedLine), nil
 }
 
-func isHumanReadableContentType(contentType string) bool {
-	return contentType == "application/json" || contentType == "text/raw" || contentType == "text/html"
+func parseKeyValPair(s string) (string, string, error) {
+	kv := strings.Split(s, "=")
+	if len(kv) != 2 {
+		return "", "", fmt.Errorf("invalid key=value pair: %s\n", s)
+	}
+
+	key := kv[KEY]
+	value := strings.Trim(kv[VALUE], "\"")
+
+	return key, value, nil
 }
 
-func parseHumanReadableBody(sc *bufio.Scanner) ([]byte, error) {
-	body := []byte{}
+func parseMultiPart(sc *bufio.Scanner) ([]MultiPartItem, error) {
+	multipartItems := []MultiPartItem{}
+
 	for sc.Scan() {
-		body = append(body, sc.Bytes()...)
+		multipartComponents := strings.Split(sc.Text(), ";")
 
-		// scanning removes newline I guess, add it back to make sure it looks
-		// the same in the hurl file as it looks in the output for consistency
-		body = append(body, '\n')
-	}
+		multipartTag := strings.TrimSpace(multipartComponents[MULTIPART_FORM_TAG])
+		name := strings.TrimSpace(multipartComponents[MULTIPART_NAME])
+		value := strings.TrimSpace(multipartComponents[MULTIPART_VALUE])
 
-	if sc.Err() != nil {
-		return []byte{}, sc.Err()
-	}
-
-	return body, nil
-}
-
-func parseFilePaths(body string) ([]string, error) {
-	filePaths := []string{}
-
-	lines := strings.Split(body, "\n")
-	for _, line := range lines {
-		// filePathLine can only be 2 elements long and
-		// must have an empty first element after splitting on file path keyword
-		if isFilePath(line) {
-			return []string{}, errors.New("invalid file path")
+		if multipartTag != "form-data" {
+			return []MultiPartItem{}, fmt.Errorf("found \"%s\" instead of \"form-data\" multipart tag", multipartTag)
 		}
 
-		filePathLine := strings.SplitN(line, "=", 2)
-		filePath := filePathLine[1]
+		formFieldNameKey, formFieldName, err := parseKeyValPair(name)
+		if err != nil {
+			return []MultiPartItem{}, err
+		}
+		if formFieldNameKey != "name" {
+			return []MultiPartItem{}, fmt.Errorf("expected to find \"name\" in form data, found \"%s\"", formFieldNameKey)
+		}
 
-		filePaths = append(filePaths, filePath)
+		formFieldValueKey, formFieldValue, err := parseKeyValPair(value)
+		if err != nil {
+			return []MultiPartItem{}, err
+		}
+
+		multipartItem := MultiPartItem{formFieldName, formFieldValueKey == "filename", formFieldValue}
+
+		multipartItems = append(multipartItems, multipartItem)
 	}
 
-	return filePaths, nil
+	return multipartItems, nil
+}
+
+func parseBody(sc *bufio.Scanner) ([]byte, bool, error) {
+	bodyBuffer := bytes.Buffer{}
+
+	fileEmbed := ""
+	fileEmbedFound := false
+	for sc.Scan() {
+		line := sc.Text()
+
+		extractedFileEmbed := extractFileEmbedPath(line)
+
+		if fileEmbedFound && extractedFileEmbed != "" {
+			return []byte{}, false, errors.New("more than 1 file embed found")
+		}
+
+		if len(extractedFileEmbed) > 0 {
+			fileEmbedFound = true
+			fileEmbed = extractedFileEmbed
+		}
+
+		bodyBuffer.Write(sc.Bytes())
+		bodyBuffer.Write([]byte{'\n'}) // add newline because scanning removes it
+	}
+
+	if fileEmbedFound {
+		if fileEmbed == "" {
+			return []byte{}, false, errors.New("file embed path is empty")
+		}
+
+		return []byte(fileEmbed), true, nil
+	}
+
+	return bodyBuffer.Bytes(), false, nil
+}
+
+type MultiPartItem struct {
+	Name       string
+	IsFilePath bool
+	Value      string
 }
 
 type HurlFile struct {
-	Method    string
-	URL       url.URL
-	Headers   map[string]string
-	Body      []byte
-	FilePaths []string
+	Method            string
+	URL               url.URL
+	Headers           map[string]string
+	Body              []byte
+	FileEmbed         string
+	MultipartFormData []MultiPartItem
+	MultipartBoundary string
 
-	// CLI and hurlrc options
+	// CLI and hurl.json options
 	Config HurlConfig
 }
 
 func ParseHurlFile(r io.Reader) (HurlFile, error) {
+
 	h := HurlFile{}
 	sc := bufio.NewScanner(r)
 
-	// request line
+	//=== request line ===//
 	sc.Scan()
 	requestLine := sc.Bytes()
-	line, err := processLine(requestLine)
+	line, err := interpolateEnvVar(requestLine)
 	if err != nil {
 		return HurlFile{}, err
 	}
@@ -203,14 +259,14 @@ func ParseHurlFile(r io.Reader) (HurlFile, error) {
 	h.URL = *parsedUrl
 	h.Method = requestLineComponents[METHOD]
 
-	// headers
+	//=== headers ===//
 	headerMap := make(map[string]string)
 
 	scanFoundToken := sc.Scan()
 	for scanFoundToken && strings.TrimSpace(sc.Text()) != "" {
-		headerComponents := strings.Split(sc.Text(), ": ")
-		headerName := headerComponents[NAME]
-		headerVal := headerComponents[VALUE]
+		headerComponents := strings.Split(sc.Text(), ":")
+		headerName := strings.TrimSpace(headerComponents[NAME])
+		headerVal := strings.TrimSpace(headerComponents[VALUE])
 
 		headerMap[headerName] = headerVal
 
@@ -235,66 +291,103 @@ func ParseHurlFile(r io.Reader) (HurlFile, error) {
 		return h, nil
 	}
 
-	// body
-	filePathPresent := false
-	bodyBuffer := bytes.Buffer{}
-	for sc.Scan() {
-		line := sc.Text()
-		if isFilePath(line) {
-			filePathPresent = true
-		}
+	//=== body ===//
 
-		bodyBuffer.Write(sc.Bytes())
-
-		// add newline because scanning removes it
-		bodyBuffer.Write([]byte{'\n'})
-	}
-	if sc.Err() != nil {
-		return HurlFile{}, sc.Err()
-	}
-
-	if filePathPresent {
-		// read file paths
-		filePaths, err := parseFilePaths(bodyBuffer.String())
+	// TODO: check valid content-type
+	headerContentType, exists := h.Headers["Content-Type"]
+	if exists && headerContentType == "multipart/form-data" {
+		// form data
+		multipartFormData, err := parseMultiPart(sc)
 		if err != nil {
 			return HurlFile{}, err
 		}
 
-		h.FilePaths = filePaths
-		fmt.Println(filePaths)
+		h.MultipartFormData = multipartFormData
 
-	} else {
-		_, exists := h.Headers["Content-Type"]
-		if !exists {
-			err := errors.New("no \"Content-Type\" defined, using \"text/plain\" content type")
-			PrintWarning(err)
+	} else if exists && headerContentType != "multipart/form-data" {
+		// read body as is, might have file embed
+		body, containsFileEmbed, err := parseBody(sc)
+		if err != nil {
+			return HurlFile{}, err
 		}
 
-		// read as raw text
-		h.Body = bodyBuffer.Bytes()
+		if containsFileEmbed {
+			h.FileEmbed = string(body)
+		} else {
+			h.Body = body
+		}
+	} else {
+		err := errors.New("no \"Content-Type\" header found, using \"text/plain\" as \"Content-Type\" header")
+		h.Headers["Content-Type"] = "text/plain"
+		PrintWarning(err)
+
+		body, _, err := parseBody(sc)
+		if err != nil {
+			return HurlFile{}, err
+		}
+		h.Body = body
 	}
 
 	return h, nil
 }
 
+func WriteMultipart(h HurlFile, writer *multipart.Writer) error {
+	for _, multiPartItem := range h.MultipartFormData {
+		if multiPartItem.IsFilePath {
+			file, err := os.Stat(multiPartItem.Value)
+			if err != nil {
+				return nil
+			}
+
+			fileData, err := os.ReadFile(multiPartItem.Value)
+			if err != nil {
+				return nil
+			}
+
+			mimeHeader := make(textproto.MIMEHeader)
+
+			mimeHeader.Set("Content-Disposition", fmt.Sprintf("form-data; name=\"%s\"; filename=\"%s\"", multiPartItem.Name, file.Name()))
+			mimeHeader.Set("Content-Type", http.DetectContentType(fileData))
+
+			part, err := writer.CreatePart(mimeHeader)
+			if err != nil {
+				return err
+			}
+
+			part.Write(fileData)
+		} else {
+			err := writer.WriteField(multiPartItem.Name, multiPartItem.Value)
+			if err != nil {
+				return err
+			}
+		}
+	}
+
+	writer.Close()
+	return nil
+}
+
 func (h HurlFile) NewRequest() (*http.Request, error) {
 	body := &bytes.Buffer{}
 
-	for _, filePath := range h.FilePaths {
-		file, err := os.Open(filePath)
-		if err != nil {
-			return nil, err
-		}
-
-		defer file.Close()
-
-		writer := multipart.NewWriter(body)
-		part, _ := writer.CreateFormFile("file", filepath.Base(file.Name()))
-		io.Copy(part, file)
-		writer.Close()
+	contentType, exists := h.Headers["Content-Type"]
+	if !exists && h.Method != "GET" && h.Method != "DELETE" {
+		return &http.Request{}, errors.New("\"Content-Type\" header missing")
 	}
 
-	if len(h.Body) > 0 {
+	if contentType == "multipart/form-data" && len(h.MultipartFormData) > 0 {
+		writer := multipart.NewWriter(body)
+		h.Headers["Content-Type"] = fmt.Sprintf("%s; boundary=%s", contentType, writer.Boundary())
+		h.MultipartBoundary = writer.Boundary()
+
+		WriteMultipart(h, writer)
+	} else if h.FileEmbed != "" {
+		fileData, err := os.ReadFile(h.FileEmbed)
+		if err != nil {
+			return &http.Request{}, nil
+		}
+		body.Write(fileData)
+	} else {
 		body.Write(h.Body)
 	}
 

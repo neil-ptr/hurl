@@ -1,1 +1,6 @@
 PUT https://jsonplaceholder.typicode.com/todos/1
+Content-Type: application/json
+
+{
+  "idk": 1
+}
