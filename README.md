@@ -150,6 +150,7 @@ name=John+Doe&age=30&city=New+York
 ```
 
 ### Environment Variables
+
 ```yaml
 POST {{BASE_URL}}         # [method] [url]
 Content-Type: application/json       # [header]: [value]
@@ -159,9 +160,11 @@ Authorization: Bearer jwt
     "json": 123
 }
 ```
+
 To run you can either
+
 ```
-$ BASE_URL=https://wealthsimple.com
+$ BASE_URL=https://wealthsimple.com hurl get.txt
 ```
 
 or give a path to your `.env` file in your `hurl.json` file
