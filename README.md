@@ -182,7 +182,7 @@ or give a path to your `.env` file in your `hurl.json` file
 BASE_URL=https://wealthsimple.com
 ```
 
-### Flags
+## Flags
 all flags need to come before the path to the request file.
 * `-o=/path/to/file.json`: path to a file to output response body content
 * `-v`: verbose out, prints all request and response headers in a format similar to a raw HTTP request and response
