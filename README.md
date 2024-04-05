@@ -150,8 +150,36 @@ name=John+Doe&age=30&city=New+York
 ```
 
 ### Environment Variables
+```yaml
+POST {{BASE_URL}}         # [method] [url]
+Content-Type: application/json       # [header]: [value]
+Authorization: Bearer jwt            
+                                     # newline if there is a body
+{                                    # body...
+    "json": 123
+}
+```
+To run you can either
+```
+$ BASE_URL=https://wealthsimple.com
+```
 
-## Flags
+or give a path to your `.env` file in your `hurl.json` file
+
+```yaml
+// hurl.json
+{
+    // path to your .env file
+    "env": "/path/to/.env/file"
+}
+```
+
+```yaml
+# .env
+BASE_URL=https://wealthsimple.com
+```
+
+### Flags
 all flags need to come before the path to the request file.
 * `-o=/path/to/file.json`: path to a file to output response body content
 * `-v`: verbose out, prints all request and response headers in a format similar to a raw HTTP request and response
