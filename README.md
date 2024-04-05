@@ -28,8 +28,8 @@ https://github.com/neil-and-void/hurl/assets/46465568/adc2587e-844f-4459-bf90-cd
 
 ```bash
 brew update
-brew tap neil-and-void/hurl
-brew install neil-and-void/hurl/hurl
+brew tap neil-and-void/homebrew-hurl
+brew install neil-and-void/homebrew-hurl/hurl
 ```
 
 ## Usage
