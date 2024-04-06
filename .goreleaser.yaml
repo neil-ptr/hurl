@@ -49,7 +49,7 @@ brews:
   - repository:
       owner: neil-and-void
       name: homebrew-hurl
-    folder: Formula
+    directory: Formula
     homepage: "https://github.com/neil-and-void/hurl"
     description: "Postman for terminal workflows"
     caveats: "Thanks for installing hurl!"
