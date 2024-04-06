@@ -32,6 +32,13 @@ brew tap neil-and-void/homebrew-hurl
 brew install neil-and-void/homebrew-hurl/hurl
 ```
 
+## Installation
+
+```bash
+brew update
+brew upgrade neil-and-void/homebrew-hurl/hurl
+```
+
 ## Usage
 
 The [examples](https://github.com/neil-and-void/hurl/tree/main/examples) folder has some requests to copy as a starting point to edit and tailor to your own needs.
