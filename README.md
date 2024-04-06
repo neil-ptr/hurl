@@ -32,7 +32,7 @@ brew tap neil-and-void/homebrew-hurl
 brew install neil-and-void/homebrew-hurl/hurl
 ```
 
-## Installation
+## Updating
 
 ```bash
 brew update
