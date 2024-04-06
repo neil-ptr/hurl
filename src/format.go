@@ -2,6 +2,7 @@ package src
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"mime/multipart"
 	"net/http"
@@ -67,6 +68,15 @@ func formatStatusCode(statusCode int, status string) string {
 	return fmt.Sprintf("%s", coloredStatus(formatted))
 }
 
+func PrettifyJson(j []byte) ([]byte, error) {
+	var prettyJSON bytes.Buffer
+	if err := json.Indent(&prettyJSON, j, "", "  "); err != nil {
+		return []byte{}, err
+	}
+
+	return prettyJSON.Bytes(), nil
+}
+
 func FormatHeaders(headers http.Header, directionCharacter string) []byte {
 	buffer := bytes.Buffer{}
 
@@ -100,19 +110,22 @@ func FormatFileEmbed(fileEmbed string) []byte {
 	return buffer.Bytes()
 }
 
-func FormatBody(body []byte, contentType string) ([]byte, error) {
+func FormatBody(body []byte, mediaType string) ([]byte, error) {
+	buffer := bytes.Buffer{}
+
 	formatter := "" // raw text
-	if strings.Contains(contentType, "application/json") {
+	if mediaType == "application/json" {
 		formatter = "json"
-	} else if strings.Contains(contentType, "text/html") {
+		prettified, err := PrettifyJson(body)
+		if err != nil {
+			return []byte{}, nil
+		}
+
+		body = prettified
+	} else if mediaType == "text/html" {
 		formatter = "html"
 	}
 
-	if len(body) == 0 {
-		return []byte{}, nil
-	}
-
-	buffer := bytes.Buffer{}
 	err := quick.Highlight(&buffer, string(body), formatter, "terminal", "")
 	if err != nil {
 		return []byte{}, nil

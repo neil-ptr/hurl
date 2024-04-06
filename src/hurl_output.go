@@ -4,9 +4,9 @@ import (
 	"bytes"
 	"fmt"
 	"io"
+	"mime"
 	"net/http"
 	"os"
-	"strings"
 	"time"
 )
 
@@ -77,10 +77,12 @@ func (h HurlOutput) OutputRequest(hurlFile HurlFile, req http.Request) error {
 
 	contentType := req.Header.Get("Content-Type")
 
-	contentTypeParts := strings.SplitN(contentType, "; ", 2)
-	mimetype := contentTypeParts[0]
+	mediaType, _, err := mime.ParseMediaType(contentType)
+	if err != nil {
+		return nil
+	}
 
-	if mimetype == "multipart/form-data" {
+	if mediaType == "multipart/form-data" {
 		body, err := FormatMultiPart(hurlFile.MultipartFormData, hurlFile.MultipartBoundary)
 		if err != nil {
 			return err
@@ -93,7 +95,7 @@ func (h HurlOutput) OutputRequest(hurlFile HurlFile, req http.Request) error {
 		buffer.Write([]byte(fileEmbed))
 
 	} else {
-		body, err := FormatBody(hurlFile.Body, contentType)
+		body, err := FormatBody(hurlFile.Body, mediaType)
 		if err != nil {
 			return err
 		}
@@ -119,6 +121,11 @@ func (h HurlOutput) OutputResponse(res http.Response) error {
 	buffer.Write([]byte("\n"))
 
 	contentType := res.Header.Get("Content-Type")
+	mediaType, _, err := mime.ParseMediaType(contentType)
+	if err != nil {
+		return nil
+	}
+
 	bodyBytes, err := io.ReadAll(res.Body)
 	if err != nil {
 		return err
@@ -126,6 +133,15 @@ func (h HurlOutput) OutputResponse(res http.Response) error {
 
 	bodyOutputPath := h.Config.BodyOutputPath
 	if len(bodyOutputPath) > 0 {
+		if mediaType == "application/json" {
+			prettified, err := PrettifyJson(bodyBytes)
+			if err != nil {
+				return err
+			}
+
+			bodyBytes = prettified
+		}
+
 		err := os.WriteFile(bodyOutputPath, bodyBytes, 0644)
 		if err != nil {
 			return err
@@ -142,7 +158,7 @@ func (h HurlOutput) OutputResponse(res http.Response) error {
 		return nil
 	}
 
-	body, err := FormatBody(bodyBytes, contentType)
+	body, err := FormatBody(bodyBytes, mediaType)
 	if err != nil {
 		return err
 	}
