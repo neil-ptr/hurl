@@ -1,4 +1,4 @@
-POST {{REQ_BIN_URL}}
+POST {{WEBHOOK_URL}}
 Content-Type: multipart/form-data
 Authorization: bearer token_val
 
