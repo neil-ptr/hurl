@@ -224,9 +224,9 @@ type HurlFile struct {
 	Config HurlConfig
 }
 
-func ParseHurlFile(r io.Reader) (HurlFile, error) {
+func ParseHurlFile(r io.Reader) (*HurlFile, error) {
 
-	h := HurlFile{}
+	h := &HurlFile{}
 	sc := bufio.NewScanner(r)
 
 	//=== request line ===//
@@ -234,26 +234,26 @@ func ParseHurlFile(r io.Reader) (HurlFile, error) {
 	requestLine := sc.Bytes()
 	line, err := interpolateEnvVar(requestLine)
 	if err != nil {
-		return HurlFile{}, err
+		return &HurlFile{}, err
 	}
 
 	requestLineComponents := strings.Split(string(line), " ")
 
 	if len(requestLineComponents) > 2 {
-		return HurlFile{}, errors.New("Too many request line components")
+		return &HurlFile{}, errors.New("Too many request line components")
 	}
 	if len(requestLineComponents) < 2 {
-		return HurlFile{}, errors.New("Not enough request line components")
+		return &HurlFile{}, errors.New("Not enough request line components")
 	}
 
 	parsedUrl, err := url.ParseRequestURI(requestLineComponents[URL])
 	if err != nil {
-		return HurlFile{}, err
+		return &HurlFile{}, err
 	}
 
 	method := requestLineComponents[METHOD]
 	if !isValidMethod(method) {
-		return HurlFile{}, errors.New("invalid HTTP method")
+		return &HurlFile{}, errors.New("invalid HTTP method")
 	}
 
 	h.URL = *parsedUrl
@@ -273,7 +273,7 @@ func ParseHurlFile(r io.Reader) (HurlFile, error) {
 		scanFoundToken = sc.Scan()
 	}
 	if sc.Err() != nil {
-		return HurlFile{}, sc.Err()
+		return &HurlFile{}, sc.Err()
 	}
 
 	h.Headers = headerMap
@@ -299,7 +299,7 @@ func ParseHurlFile(r io.Reader) (HurlFile, error) {
 		// form data
 		multipartFormData, err := parseMultiPart(sc)
 		if err != nil {
-			return HurlFile{}, err
+			return &HurlFile{}, err
 		}
 
 		h.MultipartFormData = multipartFormData
@@ -308,7 +308,7 @@ func ParseHurlFile(r io.Reader) (HurlFile, error) {
 		// read body as is, might have file embed
 		body, containsFileEmbed, err := parseBody(sc)
 		if err != nil {
-			return HurlFile{}, err
+			return &HurlFile{}, err
 		}
 
 		if containsFileEmbed {
@@ -323,7 +323,7 @@ func ParseHurlFile(r io.Reader) (HurlFile, error) {
 
 		body, _, err := parseBody(sc)
 		if err != nil {
-			return HurlFile{}, err
+			return &HurlFile{}, err
 		}
 		h.Body = body
 	}
@@ -367,7 +367,7 @@ func WriteMultipart(h HurlFile, writer *multipart.Writer) error {
 	return nil
 }
 
-func (h HurlFile) NewRequest() (*http.Request, error) {
+func (h *HurlFile) NewRequest() (*http.Request, error) {
 	body := &bytes.Buffer{}
 
 	contentType, exists := h.Headers["Content-Type"]
@@ -380,7 +380,7 @@ func (h HurlFile) NewRequest() (*http.Request, error) {
 		h.Headers["Content-Type"] = fmt.Sprintf("%s; boundary=%s", contentType, writer.Boundary())
 		h.MultipartBoundary = writer.Boundary()
 
-		WriteMultipart(h, writer)
+		WriteMultipart(*h, writer)
 	} else if h.FileEmbed != "" {
 		fileData, err := os.ReadFile(h.FileEmbed)
 		if err != nil {

@@ -55,7 +55,7 @@ func ClearSpinner() {
 	fmt.Print("\r")
 }
 
-func (h HurlOutput) OutputRequest(hurlFile HurlFile, req http.Request) error {
+func (h HurlOutput) OutputRequest(hurlFile *HurlFile, req http.Request) error {
 	buffer := bytes.Buffer{}
 
 	requestLine := FormatRequestLine(req)
