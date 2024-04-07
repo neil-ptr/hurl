@@ -14,14 +14,15 @@ You're a developer working in tmux and neovim developing backend services but ev
 Hurl is a command-line tool inspired by Postman and curl, designed for developers who prefer to manage and execute HTTP requests from the terminal. Born out of a love for Neovim and the streamlined efficiency of terminal-based workflows, Hurl is crafted for those who thrive in the command-line environment. Hurl allows users to store their HTTP requests in files and execute them directly from the command line. Whether you're editing code, managing version control, or interacting with web services, Hurl is intended to keep you in your flow state in the comforting embrace of your terminal.
 
 ## Features
-https://github.com/neil-and-void/hurl/assets/46465568/adc2587e-844f-4459-bf90-cd5957e84ca5
+
+https://github.com/neil-and-void/hurl/assets/46465568/92ac0ad7-a44a-462b-bf3a-8b68e5cf1a39
 
 - **Save and Reuse Requests**: Store your HTTP requests in simple text files for easy reuse and version control.
 - **Support for Multiple HTTP Methods**: GET, POST, PUT, DELETE, and PATCH.
 - **Headers & Payload Handling**: Easily add headers and payloads to your requests.
 - **Environment Variables**: Use environment variables in your request files for different deployment stages (e.g., development, staging, production).
 - **Response Highlighting**: Color-coded response output for easy reading and debugging.
-- **File Uploads**: (TODO) Support for multipart file uploads. 
+- **File Uploads**: Support for multipart file uploads. 
 - **History & Repeat**: Keep a history of your requests and repeat them with a single command.
 
 ## Installation
@@ -126,8 +127,12 @@ Authorization: Bearer jwt
 {                                    # body...
     "json": 123
 }
+
 ```
 ### Single File Uploads
+
+For sending binary data in bodies use the `@file` file embed tag. There can only be one tag for these types of requests. If you want to send multiple files use the content-type header `multipart/form-data`
+
 ```yaml
 POST http://wealthsimple.com         # [method] [url]
 Content-Type: image/png              # [header]: [value]
@@ -161,7 +166,7 @@ name=John+Doe&age=30&city=New+York
 ```yaml
 POST {{BASE_URL}}         # [method] [url]
 Content-Type: application/json       # [header]: [value]
-Authorization: Bearer jwt            
+Authorization: Bearer {{TOKEN}}        
                                      # newline if there is a body
 {                                    # body...
     "json": 123
@@ -191,8 +196,10 @@ BASE_URL=https://wealthsimple.com
 
 ## Flags
 all flags need to come before the path to the request file.
-* `-o=/path/to/file.json`: path to a file to output response body content
+* `-version`: print version
 * `-v`: verbose out, prints all request and response headers in a format similar to a raw HTTP request and response
+* `-o=/path/to/file.json`: path to a file to output response body content
+
 
 ## Configuration
 You can configure hurl by creating a `hurl.json` file in your current working directory. Available configurations include setting `.env` file path, default headers (TODO), response timeout (TODO). Below is an example config.
