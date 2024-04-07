@@ -11,7 +11,7 @@ func main() {
 	config, err := src.InitConfig()
 
 	if config.Version {
-		fmt.Println("v0.4.1")
+		fmt.Println("v0.4.2")
 		os.Exit(0)
 	}
 
