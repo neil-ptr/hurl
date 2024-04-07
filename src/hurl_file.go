@@ -269,8 +269,15 @@ func ParseHurlFile(r io.Reader) (*HurlFile, error) {
 			return nil, fmt.Errorf("header is malformed: `%s`", sc.Text())
 		}
 
-		headerName := strings.TrimSpace(headerComponents[NAME])
-		headerVal := strings.TrimSpace(headerComponents[VALUE])
+		headerName, err := interpolateEnvVar([]byte(strings.TrimSpace(headerComponents[NAME])))
+		if err != nil {
+			return &HurlFile{}, fmt.Errorf("error interpolating value")
+		}
+
+		headerVal, err := interpolateEnvVar([]byte(strings.TrimSpace(headerComponents[VALUE])))
+		if err != nil {
+			return &HurlFile{}, fmt.Errorf("error interpolating value")
+		}
 
 		headerMap[headerName] = headerVal
 
