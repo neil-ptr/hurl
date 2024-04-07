@@ -9,6 +9,12 @@ import (
 
 func main() {
 	config, err := src.InitConfig()
+
+	if config.Version {
+		fmt.Println("v0.3.9")
+		os.Exit(0)
+	}
+
 	if err != nil {
 		fmt.Printf("hurl: %s\n", err.Error())
 		os.Exit(1)

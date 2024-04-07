@@ -20,6 +20,7 @@ type hurlConfigFile struct {
 }
 
 type HurlConfig struct {
+	Version        bool
 	Verbose        bool
 	BodyOutputPath string
 }
@@ -44,6 +45,7 @@ func readEnvironmentVariables(path string) error {
 }
 
 func InitConfig() (HurlConfig, error) {
+	version := flag.Bool("version", false, "print version")
 	verbose := flag.Bool("v", false, "verbose output")
 	bodyOutputPath := flag.String("o", "", "path to a file to output the response body")
 
@@ -74,6 +76,7 @@ func InitConfig() (HurlConfig, error) {
 	}
 
 	return HurlConfig{
+		*version,
 		*verbose,
 		*bodyOutputPath,
 	}, nil
