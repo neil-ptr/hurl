@@ -264,7 +264,11 @@ func ParseHurlFile(r io.Reader) (*HurlFile, error) {
 
 	scanFoundToken := sc.Scan()
 	for scanFoundToken && strings.TrimSpace(sc.Text()) != "" {
-		headerComponents := strings.Split(sc.Text(), ":")
+		headerComponents := strings.SplitN(sc.Text(), ":", 2)
+		if len(headerComponents) != 2 {
+			return nil, fmt.Errorf("header is malformed: `%s`", sc.Text())
+		}
+
 		headerName := strings.TrimSpace(headerComponents[NAME])
 		headerVal := strings.TrimSpace(headerComponents[VALUE])
 
