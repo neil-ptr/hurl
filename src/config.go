@@ -1,13 +1,13 @@
 package src
 
 import (
-	"bufio"
 	"encoding/json"
 	"errors"
 	"flag"
 	"io"
 	"os"
-	"strings"
+
+	"github.com/joho/godotenv"
 )
 
 const (
@@ -23,25 +23,6 @@ type HurlConfig struct {
 	Version        bool
 	Verbose        bool
 	BodyOutputPath string
-}
-
-func readEnvironmentVariables(path string) error {
-	envFile, err := os.Open(path)
-	if err != nil {
-		return err
-	}
-
-	sc := bufio.NewScanner(envFile)
-	for sc.Scan() {
-		environmentVariable := strings.SplitN(sc.Text(), "=", 2)
-
-		key := environmentVariable[ENVKEY]
-		value := environmentVariable[ENVVALUE]
-
-		os.Setenv(key, value)
-	}
-
-	return nil
 }
 
 func InitConfig() (HurlConfig, error) {
@@ -69,7 +50,7 @@ func InitConfig() (HurlConfig, error) {
 			return HurlConfig{}, err
 		}
 
-		err = readEnvironmentVariables(hurlConfigFile.EnvFilePath)
+		err = godotenv.Load(hurlConfigFile.EnvFilePath)
 		if err != nil {
 			return HurlConfig{}, err
 		}
