@@ -1,4 +1,4 @@
-POST {{ BASE_URL }}/todos/1
+POST {{ WEBHOOK_URL }}
 Content-Type: application/json
 Authorization: Bearer {{TOKEN}}
 

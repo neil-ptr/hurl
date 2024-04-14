@@ -105,7 +105,7 @@ func interpolateEnvVar(line []byte) (string, error) {
 				processedLine = append(processedLine, envVar...)
 				environmentVariableSet[string(trimmedTemplateVar)] = member
 			} else {
-				warning := fmt.Errorf("warning: could not find environment variable: %s\n", trimmedTemplateVar)
+				warning := fmt.Errorf("could not find environment variable: %s\n", trimmedTemplateVar)
 				PrintWarning(warning)
 			}
 
