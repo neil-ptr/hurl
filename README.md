@@ -6,7 +6,7 @@
 
 You're a developer working in tmux and neovim developing backend services but everytime you want to invoke an endpoint by making an http call you need to move your right hand from the home row (oh god 🤮) and CMD + arrow key over to your Postman app to then use your mouse to send a request.
 
-![cover](https://github.com/neil-and-void/hurl/assets/46465568/408c360b-36a8-4a9a-af4a-585a1854b8bd)
+![cover](https://github.com/neil-ptr/hurl/assets/46465568/408c360b-36a8-4a9a-af4a-585a1854b8bd)
 
 
 ## Overview
@@ -15,7 +15,7 @@ Hurl is a command-line tool inspired by Postman and curl, designed for developer
 
 ## Features
 
-https://github.com/neil-and-void/hurl/assets/46465568/92ac0ad7-a44a-462b-bf3a-8b68e5cf1a39
+https://github.com/neil-ptr/hurl/assets/46465568/92ac0ad7-a44a-462b-bf3a-8b68e5cf1a39
 
 - **Save and Reuse Requests**: Store your HTTP requests in simple text files for easy reuse and version control.
 - **Support for Multiple HTTP Methods**: GET, POST, PUT, DELETE, and PATCH.
@@ -29,20 +29,20 @@ https://github.com/neil-and-void/hurl/assets/46465568/92ac0ad7-a44a-462b-bf3a-8b
 
 ```bash
 brew update
-brew tap neil-and-void/homebrew-hurl
-brew install neil-and-void/homebrew-hurl/hurl
+brew tap neil-ptr/homebrew-hurl
+brew install neil-ptr/homebrew-hurl/hurl
 ```
 
 ## Updating
 
 ```bash
 brew update
-brew upgrade neil-and-void/homebrew-hurl/hurl
+brew upgrade neil-ptr/homebrew-hurl/hurl
 ```
 
 ## Usage
 
-The [examples](https://github.com/neil-and-void/hurl/tree/main/examples) folder has some requests to copy as a starting point to edit and tailor to your own needs.
+The [examples](https://github.com/neil-ptr/hurl/tree/main/examples) folder has some requests to copy as a starting point to edit and tailor to your own needs.
 
 1. **Creating a Request File**: Create a new file (e.g., `request.txt`) and write your HTTP request following the format:
 
